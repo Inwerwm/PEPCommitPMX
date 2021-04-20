@@ -28,7 +28,7 @@ namespace CommitPMX
 
         internal void Reload()
         {
-            Pmx = Args.Host.Connector.Pmx.GetCurrentState();
+            //Pmx = Args.Host.Connector.Pmx.GetCurrentState();
         }
 
         private void textBoxCommitComment_TextChanged(object sender, EventArgs e)
@@ -47,7 +47,7 @@ namespace CommitPMX
 
         private void buttonCommit_Click(object sender, EventArgs e)
         {
-            new Commit(Pmx, Args.Host.Connector.Form, textBoxCommitComment.Text).Invoke();
+            new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxCommitComment.Text).Invoke();
             textBoxCommitComment.Clear();
         }
     }
