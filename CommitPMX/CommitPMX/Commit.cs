@@ -11,10 +11,11 @@ namespace CommitPMX
 {
     class Commit
     {
+        public IPXPmx Model { get; }
+        public DateTime CommitTime { get; }
+        public string Comment { get; }
+
         private IPEFormConnector Connector { get; set; }
-        private IPXPmx Model { get; set; }
-        private DateTime CommitTime { get; set; }
-        private string Comment { get; set; }
         private string DirectoryToCommit { get; set; }
 
         public Commit(IPXPmx model, IPEFormConnector connector, string comment)
