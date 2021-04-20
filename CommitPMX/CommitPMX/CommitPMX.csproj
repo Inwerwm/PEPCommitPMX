@@ -49,7 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Comitter.cs" />
+    <Compile Include="Commit.cs" />
     <Compile Include="PluginMain.cs" />
     <Compile Include="FormControl.cs">
       <SubType>Form</SubType>

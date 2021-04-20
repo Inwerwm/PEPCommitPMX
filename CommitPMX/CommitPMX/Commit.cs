@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CommitPMX
 {
-    class Comitter
+    class Commit
     {
         private IPEFormConnector Connector { get; set; }
         private IPXPmx Model { get; set; }
@@ -17,7 +17,7 @@ namespace CommitPMX
         private string Comment { get; set; }
         private string DirectoryToCommit { get; set; }
 
-        public void Commit(IPXPmx model, IPEFormConnector connector, string comment)
+        public Commit(IPXPmx model, IPEFormConnector connector, string comment)
         {
             Connector = connector;
             Model = model;
@@ -26,7 +26,10 @@ namespace CommitPMX
             var modelPath = model.FilePath;
             DirectoryToCommit = Path.Combine(Path.GetDirectoryName(modelPath), "Committed");
             Comment = comment;
+        }
 
+        public void Invoke()
+        {
             WriteLog();
             WriteModel();
         }
