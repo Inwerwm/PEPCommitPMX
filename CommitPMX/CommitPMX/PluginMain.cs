@@ -1,10 +1,6 @@
-﻿using PEPExtensions;
-using PEPlugin;
+﻿using PEPlugin;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace CommitPMX
 {
@@ -41,7 +37,7 @@ namespace CommitPMX
             }
             catch (Exception ex)
             {
-                Utility.ShowException(ex);
+                MessageBox.Show(ex.Message);
             }
         }
 

@@ -23,7 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -31,9 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PEPExtensions">
-      <HintPath>..\..\..\PEPExtensions\PEPExtensions\bin\Release\PEPExtensions.dll</HintPath>
-    </Reference>
     <Reference Include="PEPlugin">
       <HintPath>..\..\..\..\PmxEditor\Lib\PEPlugin\PEPlugin.dll</HintPath>
     </Reference>
