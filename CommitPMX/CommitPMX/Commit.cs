@@ -25,8 +25,10 @@ namespace CommitPMX
             CommitTime = DateTime.Now;
 
             var modelPath = model.FilePath;
-            DirectoryToCommit = Path.Combine(Path.GetDirectoryName(modelPath), "Committed");
+            DirectoryToCommit = Path.Combine(Path.GetDirectoryName(modelPath), $"Commit_{Path.GetFileNameWithoutExtension(Model.FilePath)}");
             Comment = comment;
+
+            Directory.CreateDirectory(DirectoryToCommit);
         }
 
         public void Invoke()
@@ -37,7 +39,7 @@ namespace CommitPMX
 
         public void WriteLog()
         {
-            using (StreamWriter writer = new StreamWriter(Path.Combine(DirectoryToCommit, "CommitLog.csv"), true,Encoding.UTF8))
+            using (StreamWriter writer = new StreamWriter(Path.Combine(DirectoryToCommit, "CommitLog.csv"), true, Encoding.UTF8))
             {
                 // ログを書込
                 writer.WriteLine($"{CommitTime:yyyy/MM/dd HH:mm:ss.ff}, {Path.GetFileNameWithoutExtension(Model.FilePath)}, {Comment}");
