@@ -47,6 +47,7 @@ namespace CommitPMX
             this.textBoxCommitComment.AutoSize = false;
             this.textBoxCommitComment.Size = new System.Drawing.Size(361, 118);
             this.textBoxCommitComment.TabIndex = 0;
+            this.textBoxCommitComment.TextChanged += new System.EventHandler(this.textBoxCommitComment_TextChanged);
             // 
             // labelCommitComment
             // 
@@ -70,6 +71,7 @@ namespace CommitPMX
             this.buttonCommit.TabIndex = 2;
             this.buttonCommit.Text = "コミット";
             this.buttonCommit.UseVisualStyleBackColor = true;
+            this.buttonCommit.Click += new System.EventHandler(this.buttonCommit_Click);
             // 
             // tableLayoutPanel1
             // 
@@ -101,6 +103,7 @@ namespace CommitPMX
             this.checkBoxAmend.TabIndex = 3;
             this.checkBoxAmend.Text = "修正";
             this.checkBoxAmend.UseVisualStyleBackColor = true;
+            this.checkBoxAmend.CheckedChanged += new System.EventHandler(this.checkBoxAmend_CheckedChanged);
             // 
             // FormControl
             // 
