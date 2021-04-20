@@ -30,5 +30,20 @@ namespace CommitPMX
         {
             Pmx = Args.Host.Connector.Pmx.GetCurrentState();
         }
+
+        private void textBoxCommitComment_TextChanged(object sender, EventArgs e)
+        {
+            buttonCommit.Enabled = !string.IsNullOrEmpty(textBoxCommitComment.Text);
+        }
+
+        private void checkBoxAmend_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonCommit_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
