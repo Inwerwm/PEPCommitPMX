@@ -48,17 +48,19 @@ namespace CommitPMX
             this.textBoxCommitComment.Size = new System.Drawing.Size(361, 118);
             this.textBoxCommitComment.TabIndex = 0;
             this.textBoxCommitComment.TextChanged += new System.EventHandler(this.textBoxCommitComment_TextChanged);
+            this.textBoxCommitComment.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxCommitComment_KeyPress);
             // 
             // labelCommitComment
             // 
             this.labelCommitComment.AutoSize = true;
+            this.tableLayoutPanel1.SetColumnSpan(this.labelCommitComment, 2);
             this.labelCommitComment.Dock = System.Windows.Forms.DockStyle.Fill;
             this.labelCommitComment.Location = new System.Drawing.Point(4, 0);
             this.labelCommitComment.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelCommitComment.Name = "labelCommitComment";
-            this.labelCommitComment.Size = new System.Drawing.Size(130, 29);
+            this.labelCommitComment.Size = new System.Drawing.Size(361, 29);
             this.labelCommitComment.TabIndex = 1;
-            this.labelCommitComment.Text = "コメント";
+            this.labelCommitComment.Text = $"コメント({COMMENT_LIMIT}文字以内)  Ctrl+Enterでコミット";
             this.labelCommitComment.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // buttonCommit

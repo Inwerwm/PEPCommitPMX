@@ -7,6 +7,9 @@ namespace CommitPMX
 {
     public partial class FormControl : Form
     {
+        // gitのコメントは50文字以内推奨らしいので
+        private readonly int COMMENT_LIMIT = 50;
+
         IPERunArgs Args { get; }
         IPXPmx Pmx { get; set; }
 
@@ -25,11 +28,16 @@ namespace CommitPMX
 
         private void textBoxCommitComment_TextChanged(object sender, EventArgs e)
         {
-            buttonCommit.Enabled = !string.IsNullOrEmpty(textBoxCommitComment.Text);
+            // テキストの内容をプログラム側で操作するとカーソル位置が最初に戻ってしまう
+            // それを戻すためにカーソル位置を保存して最後に戻す処理を行う
+            var selectionTmp = textBoxCommitComment.SelectionStart;
 
-            // パス文字数制限があるのでとりあえずコメントは144文字制限にしておく
-            if (textBoxCommitComment.Text.Length > 144)
-                textBoxCommitComment.Text = textBoxCommitComment.Text.Substring(0, 144);
+            buttonCommit.Enabled = !string.IsNullOrEmpty(textBoxCommitComment.Text);
+            
+            if (textBoxCommitComment.Text.Length > COMMENT_LIMIT)
+                textBoxCommitComment.Text = textBoxCommitComment.Text.Substring(0, COMMENT_LIMIT);
+
+            textBoxCommitComment.SelectionStart = selectionTmp;
         }
 
         private void checkBoxAmend_CheckedChanged(object sender, EventArgs e)
@@ -41,6 +49,12 @@ namespace CommitPMX
         {
             new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxCommitComment.Text).Invoke();
             textBoxCommitComment.Clear();
+        }
+
+        private void textBoxCommitComment_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (buttonCommit.Enabled && e.KeyChar == '\n')
+                buttonCommit_Click(sender, e);
         }
     }
 }

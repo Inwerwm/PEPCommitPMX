@@ -3,6 +3,7 @@ using PEPlugin.Pmx;
 using System;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace CommitPMX
 {
@@ -22,7 +23,7 @@ namespace CommitPMX
             CommitTime = DateTime.Now;
 
             var modelPath = model.FilePath;
-            DirectoryToCommit = Path.Combine(Path.GetDirectoryName(modelPath), $"Commit_{Path.GetFileNameWithoutExtension(Model.FilePath)}");
+            DirectoryToCommit = Path.Combine(Path.GetDirectoryName(modelPath), $"CommitLog_{Path.GetFileNameWithoutExtension(Model.FilePath)}");
             Comment = comment;
 
             Directory.CreateDirectory(DirectoryToCommit);
@@ -37,27 +38,24 @@ namespace CommitPMX
         public void WriteLog()
         {
             using (StreamWriter writer = new StreamWriter(Path.Combine(DirectoryToCommit, "CommitLog.csv"), true, Encoding.UTF8))
-            {
-                // ログを書込
-                writer.WriteLine($"{CommitTime:yyyy/MM/dd HH:mm:ss.ff}, {Path.GetFileNameWithoutExtension(Model.FilePath)}, {Comment}");
-            }
+                writer.WriteLine($"\"{CommitTime:yyyy/MM/dd HH:mm:ss.ff}\",\"{Comment.Replace("\"", "\"\"")}\"");
         }
 
         public void WriteModel()
         {
-            // 上書き保存
-            Connector.SavePMXFile(Model.FilePath);
-
-            var modelName = Path.GetFileNameWithoutExtension(Model.FilePath);
-            string commitName = $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}-{Comment}";
+            var modelPath = Model.FilePath;
+            var commitPath = Path.Combine(DirectoryToCommit, $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Comment, @"[<>:\/\\|? *""]", "")}");
 
             // フルパスの長さには上限があるので
             // 少し余裕を持ったパス名にする
-            if (commitName.Length > 250)
-                commitName = commitName.Substring(0, 250 - modelName.Length);
+            if (commitPath.Length > 250)
+                commitPath = commitPath.Substring(0, 250);
 
-            // コメント付き保存
-            Connector.SavePMXFile(Path.Combine(DirectoryToCommit, $"{modelName}_{commitName}.pmx"));
+            Connector.SavePMXFile($"{commitPath}.pmx");
+
+            // コミット保存をした時点でModel.FilePathの値が書き換わるのでもとに戻す
+            Model.FilePath = modelPath;
+            Connector.SavePMXFile(Model.FilePath);
         }
     }
 }
