@@ -43,9 +43,7 @@ namespace CommitPMX
 
         public void WriteModel()
         {
-            // 上書き保存
-            Connector.SavePMXFile(Model.FilePath);
-
+            var modelPath = Model.FilePath;
             var commitPath = Path.Combine(DirectoryToCommit, $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Comment, @"[<>:\/\\|? *""]", "")}");
 
             // フルパスの長さには上限があるので
@@ -54,6 +52,10 @@ namespace CommitPMX
                 commitPath = commitPath.Substring(0, 250);
 
             Connector.SavePMXFile($"{commitPath}.pmx");
+
+            // コミット保存をした時点でModel.FilePathの値が書き換わるのでもとに戻す
+            Model.FilePath = modelPath;
+            Connector.SavePMXFile(Model.FilePath);
         }
     }
 }
