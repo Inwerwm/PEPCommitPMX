@@ -48,6 +48,7 @@ namespace CommitPMX
             this.textBoxCommitComment.Size = new System.Drawing.Size(361, 118);
             this.textBoxCommitComment.TabIndex = 0;
             this.textBoxCommitComment.TextChanged += new System.EventHandler(this.textBoxCommitComment_TextChanged);
+            this.textBoxCommitComment.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxCommitComment_KeyPress);
             // 
             // labelCommitComment
             // 

@@ -44,5 +44,11 @@ namespace CommitPMX
             new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxCommitComment.Text).Invoke();
             textBoxCommitComment.Clear();
         }
+
+        private void textBoxCommitComment_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (buttonCommit.Enabled && e.KeyChar == '\n')
+                buttonCommit_Click(sender, e);
+        }
     }
 }
