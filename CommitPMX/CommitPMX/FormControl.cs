@@ -28,6 +28,8 @@ namespace CommitPMX
 
         private void textBoxCommitComment_TextChanged(object sender, EventArgs e)
         {
+            // テキストの内容をプログラム側で操作するとカーソル位置が最初に戻ってしまう
+            // それを戻すためにカーソル位置を保存して最後に戻す処理を行う
             var selectionTmp = textBoxCommitComment.SelectionStart;
 
             buttonCommit.Enabled = !string.IsNullOrEmpty(textBoxCommitComment.Text);
