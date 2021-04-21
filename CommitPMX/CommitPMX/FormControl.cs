@@ -28,10 +28,14 @@ namespace CommitPMX
 
         private void textBoxCommitComment_TextChanged(object sender, EventArgs e)
         {
-            buttonCommit.Enabled = !string.IsNullOrEmpty(textBoxCommitComment.Text);
+            var selectionTmp = textBoxCommitComment.SelectionStart;
 
+            buttonCommit.Enabled = !string.IsNullOrEmpty(textBoxCommitComment.Text);
+            
             if (textBoxCommitComment.Text.Length > COMMENT_LIMIT)
                 textBoxCommitComment.Text = textBoxCommitComment.Text.Substring(0, COMMENT_LIMIT);
+
+            textBoxCommitComment.SelectionStart = selectionTmp;
         }
 
         private void checkBoxAmend_CheckedChanged(object sender, EventArgs e)
