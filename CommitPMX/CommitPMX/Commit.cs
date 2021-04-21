@@ -46,7 +46,7 @@ namespace CommitPMX
             // 上書き保存
             Connector.SavePMXFile(Model.FilePath);
 
-            var commitPath = Path.Combine(DirectoryToCommit, $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}-{Regex.Replace(Comment, @"[<>:\/\\|? *""]", "")}");
+            var commitPath = Path.Combine(DirectoryToCommit, $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Comment, @"[<>:\/\\|? *""]", "")}");
 
             // フルパスの長さには上限があるので
             // 少し余裕を持ったパス名にする
