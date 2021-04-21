@@ -7,6 +7,9 @@ namespace CommitPMX
 {
     public partial class FormControl : Form
     {
+        // gitのコメントは50文字以内推奨らしいので
+        private readonly int COMMENT_LIMIT = 50;
+
         IPERunArgs Args { get; }
         IPXPmx Pmx { get; set; }
 
@@ -27,9 +30,8 @@ namespace CommitPMX
         {
             buttonCommit.Enabled = !string.IsNullOrEmpty(textBoxCommitComment.Text);
 
-            // パス文字数制限があるのでとりあえずコメントは144文字制限にしておく
-            if (textBoxCommitComment.Text.Length > 144)
-                textBoxCommitComment.Text = textBoxCommitComment.Text.Substring(0, 144);
+            if (textBoxCommitComment.Text.Length > COMMENT_LIMIT)
+                textBoxCommitComment.Text = textBoxCommitComment.Text.Substring(0, COMMENT_LIMIT);
         }
 
         private void checkBoxAmend_CheckedChanged(object sender, EventArgs e)
