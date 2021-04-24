@@ -37,8 +37,17 @@ namespace CommitPMX
 
         public void WriteLog()
         {
-            using (StreamWriter writer = new StreamWriter(Path.Combine(DirectoryToCommit, "CommitLog.csv"), true, Encoding.UTF8))
+            string pathOfLog = Path.Combine(DirectoryToCommit, "CommitLog.csv");
+            var existLogFile = File.Exists(pathOfLog);
+
+            using (StreamWriter writer = new StreamWriter(pathOfLog, true, Encoding.UTF8))
+            {
+                // 初期作成ファイルにヘッダーを記入
+                if (!existLogFile)
+                    writer.WriteLine("\"日付\",\"メッセージ\"");
+
                 writer.WriteLine($"\"{CommitTime:yyyy/MM/dd HH:mm:ss.ff}\",\"{Comment.Replace("\"", "\"\"")}\"");
+            }
         }
 
         public void WriteModel()
