@@ -29,39 +29,39 @@ namespace CommitPMX
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBoxCommitComment = new System.Windows.Forms.TextBox();
-            this.labelCommitComment = new System.Windows.Forms.Label();
+            this.textBoxMessage = new System.Windows.Forms.TextBox();
+            this.labelMessage = new System.Windows.Forms.Label();
             this.buttonCommit = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.checkBoxAmend = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // textBoxCommitComment
+            // textBoxMessage
             // 
-            this.tableLayoutPanel1.SetColumnSpan(this.textBoxCommitComment, 2);
-            this.textBoxCommitComment.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBoxCommitComment.Location = new System.Drawing.Point(4, 34);
-            this.textBoxCommitComment.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.textBoxCommitComment.Name = "textBoxCommitComment";
-            this.textBoxCommitComment.AutoSize = false;
-            this.textBoxCommitComment.Size = new System.Drawing.Size(361, 118);
-            this.textBoxCommitComment.TabIndex = 0;
-            this.textBoxCommitComment.TextChanged += new System.EventHandler(this.textBoxCommitComment_TextChanged);
-            this.textBoxCommitComment.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxCommitComment_KeyPress);
+            this.tableLayoutPanel1.SetColumnSpan(this.textBoxMessage, 2);
+            this.textBoxMessage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxMessage.Location = new System.Drawing.Point(4, 34);
+            this.textBoxMessage.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxMessage.Name = "textBoxMessage";
+            this.textBoxMessage.AutoSize = false;
+            this.textBoxMessage.Size = new System.Drawing.Size(361, 118);
+            this.textBoxMessage.TabIndex = 0;
+            this.textBoxMessage.TextChanged += new System.EventHandler(this.textBoxMessage_TextChanged);
+            this.textBoxMessage.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxMessage_KeyPress);
             // 
-            // labelCommitComment
+            // labelMessage
             // 
-            this.labelCommitComment.AutoSize = true;
-            this.tableLayoutPanel1.SetColumnSpan(this.labelCommitComment, 2);
-            this.labelCommitComment.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.labelCommitComment.Location = new System.Drawing.Point(4, 0);
-            this.labelCommitComment.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelCommitComment.Name = "labelCommitComment";
-            this.labelCommitComment.Size = new System.Drawing.Size(361, 29);
-            this.labelCommitComment.TabIndex = 1;
-            this.labelCommitComment.Text = $"コメント({COMMENT_LIMIT}文字以内)  Ctrl+Enterでコミット";
-            this.labelCommitComment.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.labelMessage.AutoSize = true;
+            this.tableLayoutPanel1.SetColumnSpan(this.labelMessage, 2);
+            this.labelMessage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelMessage.Location = new System.Drawing.Point(4, 0);
+            this.labelMessage.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelMessage.Name = "labelMessage";
+            this.labelMessage.Size = new System.Drawing.Size(361, 29);
+            this.labelMessage.TabIndex = 1;
+            this.labelMessage.Text = $"メッセージ({MESSAGE_LIMIT}文字以内)  Ctrl+Enterでコミット";
+            this.labelMessage.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // buttonCommit
             // 
@@ -81,8 +81,8 @@ namespace CommitPMX
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 138F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.buttonCommit, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.textBoxCommitComment, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.labelCommitComment, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.textBoxMessage, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.labelMessage, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.checkBoxAmend, 1, 2);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -128,8 +128,8 @@ namespace CommitPMX
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBoxCommitComment;
-        private System.Windows.Forms.Label labelCommitComment;
+        private System.Windows.Forms.TextBox textBoxMessage;
+        private System.Windows.Forms.Label labelMessage;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Button buttonCommit;
         private System.Windows.Forms.CheckBox checkBoxAmend;
