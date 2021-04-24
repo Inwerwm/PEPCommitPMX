@@ -11,12 +11,12 @@ namespace CommitPMX
     {
         public IPXPmx Model { get; }
         public DateTime CommitTime { get; }
-        public string Comment { get; }
+        public string Message { get; }
 
         private IPEFormConnector Connector { get; set; }
         private string DirectoryToCommit { get; set; }
 
-        public Commit(IPXPmx model, IPEFormConnector connector, string comment)
+        public Commit(IPXPmx model, IPEFormConnector connector, string message)
         {
             Connector = connector;
             Model = model;
@@ -24,7 +24,7 @@ namespace CommitPMX
 
             var modelPath = model.FilePath;
             DirectoryToCommit = Path.Combine(Path.GetDirectoryName(modelPath), $"CommitLog_{Path.GetFileNameWithoutExtension(Model.FilePath)}");
-            Comment = comment;
+            Message = message;
 
             Directory.CreateDirectory(DirectoryToCommit);
         }
@@ -37,14 +37,23 @@ namespace CommitPMX
 
         public void WriteLog()
         {
-            using (StreamWriter writer = new StreamWriter(Path.Combine(DirectoryToCommit, "CommitLog.csv"), true, Encoding.UTF8))
-                writer.WriteLine($"\"{CommitTime:yyyy/MM/dd HH:mm:ss.ff}\",\"{Comment.Replace("\"", "\"\"")}\"");
+            string pathOfLog = Path.Combine(DirectoryToCommit, "CommitLog.csv");
+            var existLogFile = File.Exists(pathOfLog);
+
+            using (StreamWriter writer = new StreamWriter(pathOfLog, true, Encoding.UTF8))
+            {
+                // 初期作成ファイルにヘッダーを記入
+                if (!existLogFile)
+                    writer.WriteLine("\"日付\",\"メッセージ\"");
+
+                writer.WriteLine($"\"{CommitTime:yyyy/MM/dd HH:mm:ss.ff}\",\"{Message.Replace("\"", "\"\"")}\"");
+            }
         }
 
         public void WriteModel()
         {
             var modelPath = Model.FilePath;
-            var commitPath = Path.Combine(DirectoryToCommit, $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Comment, @"[<>:\/\\|? *""]", "")}");
+            var commitPath = Path.Combine(DirectoryToCommit, $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Message, @"[<>:\/\\|? *""]", "")}");
 
             // フルパスの長さには上限があるので
             // 少し余裕を持ったパス名にする

@@ -8,7 +8,7 @@ namespace CommitPMX
     public partial class FormControl : Form
     {
         // gitのコメントは50文字以内推奨らしいので
-        private readonly int COMMENT_LIMIT = 50;
+        private readonly int MESSAGE_LIMIT = 50;
 
         IPERunArgs Args { get; }
         IPXPmx Pmx { get; set; }
@@ -26,18 +26,18 @@ namespace CommitPMX
             //Pmx = Args.Host.Connector.Pmx.GetCurrentState();
         }
 
-        private void textBoxCommitComment_TextChanged(object sender, EventArgs e)
+        private void textBoxMessage_TextChanged(object sender, EventArgs e)
         {
             // テキストの内容をプログラム側で操作するとカーソル位置が最初に戻ってしまう
             // それを戻すためにカーソル位置を保存して最後に戻す処理を行う
-            var selectionTmp = textBoxCommitComment.SelectionStart;
+            var selectionTmp = textBoxMessage.SelectionStart;
 
-            buttonCommit.Enabled = !string.IsNullOrEmpty(textBoxCommitComment.Text);
+            buttonCommit.Enabled = !string.IsNullOrEmpty(textBoxMessage.Text);
             
-            if (textBoxCommitComment.Text.Length > COMMENT_LIMIT)
-                textBoxCommitComment.Text = textBoxCommitComment.Text.Substring(0, COMMENT_LIMIT);
+            if (textBoxMessage.Text.Length > MESSAGE_LIMIT)
+                textBoxMessage.Text = textBoxMessage.Text.Substring(0, MESSAGE_LIMIT);
 
-            textBoxCommitComment.SelectionStart = selectionTmp;
+            textBoxMessage.SelectionStart = selectionTmp;
         }
 
         private void checkBoxAmend_CheckedChanged(object sender, EventArgs e)
@@ -47,14 +47,20 @@ namespace CommitPMX
 
         private void buttonCommit_Click(object sender, EventArgs e)
         {
-            new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxCommitComment.Text).Invoke();
-            textBoxCommitComment.Clear();
+            new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxMessage.Text).Invoke();
+            textBoxMessage.Clear();
         }
 
-        private void textBoxCommitComment_KeyPress(object sender, KeyPressEventArgs e)
+        private void textBoxMessage_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (buttonCommit.Enabled && e.KeyChar == '\n')
                 buttonCommit_Click(sender, e);
+        }
+
+        private void FormControl_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            Hide();
         }
     }
 }
