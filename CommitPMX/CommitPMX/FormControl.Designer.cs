@@ -120,6 +120,7 @@ namespace CommitPMX
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "FormControl";
             this.Text = "CommitPMX";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormControl_FormClosing);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);

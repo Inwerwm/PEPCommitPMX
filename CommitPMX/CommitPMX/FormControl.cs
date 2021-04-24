@@ -56,5 +56,11 @@ namespace CommitPMX
             if (buttonCommit.Enabled && e.KeyChar == '\n')
                 buttonCommit_Click(sender, e);
         }
+
+        private void FormControl_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            Hide();
+        }
     }
 }
