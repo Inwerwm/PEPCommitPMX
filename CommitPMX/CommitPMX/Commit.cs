@@ -2,6 +2,7 @@
 using PEPlugin.Pmx;
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -35,7 +36,7 @@ namespace CommitPMX
             WriteModel();
         }
 
-        public void WriteLog()
+        private void WriteLog()
         {
             string pathOfLog = Path.Combine(DirectoryToCommit, "CommitLog.csv");
             var existLogFile = File.Exists(pathOfLog);
@@ -50,7 +51,7 @@ namespace CommitPMX
             }
         }
 
-        public void WriteModel()
+        private void WriteModel()
         {
             var modelPath = Model.FilePath;
             var commitPath = Path.Combine(DirectoryToCommit, $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Message, @"[<>:\/\\|? *""]", "")}");
@@ -59,8 +60,18 @@ namespace CommitPMX
             // 少し余裕を持ったパス名にする
             if (commitPath.Length > 250)
                 commitPath = commitPath.Substring(0, 250);
+            string savePath = $"{commitPath}.pmx";
 
-            Connector.SavePMXFile($"{commitPath}.pmx");
+            Connector.SavePMXFile(savePath);
+
+            // Zipファイルに圧縮
+            string archivePath = Path.Combine(DirectoryToCommit, "archive.zip");
+            using (var archive = ZipFile.Open(archivePath, File.Exists(archivePath) ? ZipArchiveMode.Update : ZipArchiveMode.Create))
+            {
+                archive.CreateEntryFromFile(savePath, Path.GetFileName(savePath), CompressionLevel.Optimal);
+            }
+            // 未圧縮ファイルを削除
+            File.Delete(savePath);
 
             // コミット保存をした時点でModel.FilePathの値が書き換わるのでもとに戻す
             Model.FilePath = modelPath;
