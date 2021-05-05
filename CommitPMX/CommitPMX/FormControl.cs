@@ -38,7 +38,15 @@ namespace CommitPMX
             if (textBoxMessage.Text.Length > MESSAGE_LIMIT)
                 textBoxMessage.Text = textBoxMessage.Text.Substring(0, MESSAGE_LIMIT);
 
-            textBoxMessage.SelectionStart = selectionTmp;
+            if(textBoxMessage.Text.Contains(Environment.NewLine))
+            {
+                // 改行文字分カーソル位置を戻す
+                selectionTmp -= 2;
+                textBoxMessage.Text = textBoxMessage.Text.Replace(Environment.NewLine, "");
+            }
+
+            // 文字キーとエンターキーを同時押しされるとselectionTmpが負になる場合がある
+            textBoxMessage.SelectionStart = Math.Max(selectionTmp, 0);
         }
 
         private void checkBoxAmend_CheckedChanged(object sender, EventArgs e)
@@ -48,7 +56,7 @@ namespace CommitPMX
 
         private void buttonCommit_Click(object sender, EventArgs e)
         {
-            new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxMessage.Text.Replace(Environment.NewLine, " ")).Invoke();
+            new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxMessage.Text).Invoke();
             textBoxMessage.Clear();
         }
 
