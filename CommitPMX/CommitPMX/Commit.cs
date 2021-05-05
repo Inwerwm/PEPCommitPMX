@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace CommitPMX
 {
@@ -34,7 +35,9 @@ namespace CommitPMX
             // 書込用ディレクトリを作成
             // 既存の場合何もおこらない
             Directory.CreateDirectory(DirectoryToCommit);
-            WriteLog();
+            // 上書き保存
+            Connector.SavePMXFile(Model.FilePath);
+            Task.Run(WriteLog);
             WriteModel();
         }
 
@@ -63,19 +66,26 @@ namespace CommitPMX
             string savePath = $"{commitPath}.pmx";
 
             Connector.SavePMXFile(savePath);
-
-            // Zipファイルに圧縮
-            string archivePath = Path.Combine(DirectoryToCommit, "archive.zip");
-            using (var archive = ZipFile.Open(archivePath, File.Exists(archivePath) ? ZipArchiveMode.Update : ZipArchiveMode.Create))
-            {
-                archive.CreateEntryFromFile(savePath, Path.GetFileName(savePath), CompressionLevel.Optimal);
-            }
-            // 未圧縮ファイルを削除
-            File.Delete(savePath);
-
             // コミット保存をした時点でModel.FilePathの値が書き換わるのでもとに戻す
             Model.FilePath = modelPath;
-            Connector.SavePMXFile(Model.FilePath);
+
+            // アーカイブに追加する処理は時間がかかる可能性があることも考えて非同期でやる
+            Task.Run(() =>
+            {
+                // アーカイブに履歴モデルを追加
+                string archivePath = Path.Combine(DirectoryToCommit, "archive.zip");
+                AddFileToArchive(savePath, archivePath);
+                // 未圧縮ファイルを削除
+                File.Delete(savePath);
+            });
+        }
+
+        private void AddFileToArchive(string filePath, string archivePath)
+        {
+            using (var archive = ZipFile.Open(archivePath, File.Exists(archivePath) ? ZipArchiveMode.Update : ZipArchiveMode.Create))
+            {
+                archive.CreateEntryFromFile(filePath, Path.GetFileName(filePath), CompressionLevel.Optimal);
+            }
         }
     }
 }
