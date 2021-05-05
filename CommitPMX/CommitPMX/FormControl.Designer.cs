@@ -43,6 +43,7 @@ namespace CommitPMX
             this.textBoxMessage.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBoxMessage.Location = new System.Drawing.Point(4, 34);
             this.textBoxMessage.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxMessage.Multiline = true;
             this.textBoxMessage.Name = "textBoxMessage";
             this.textBoxMessage.Size = new System.Drawing.Size(361, 118);
             this.textBoxMessage.TabIndex = 0;
