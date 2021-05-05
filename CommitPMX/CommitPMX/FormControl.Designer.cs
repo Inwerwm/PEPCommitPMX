@@ -43,8 +43,8 @@ namespace CommitPMX
             this.textBoxMessage.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBoxMessage.Location = new System.Drawing.Point(4, 34);
             this.textBoxMessage.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxMessage.Multiline = true;
             this.textBoxMessage.Name = "textBoxMessage";
-            this.textBoxMessage.AutoSize = false;
             this.textBoxMessage.Size = new System.Drawing.Size(361, 118);
             this.textBoxMessage.TabIndex = 0;
             this.textBoxMessage.TextChanged += new System.EventHandler(this.textBoxMessage_TextChanged);
@@ -60,7 +60,7 @@ namespace CommitPMX
             this.labelMessage.Name = "labelMessage";
             this.labelMessage.Size = new System.Drawing.Size(361, 29);
             this.labelMessage.TabIndex = 1;
-            this.labelMessage.Text = $"メッセージ({MESSAGE_LIMIT}文字以内)  Ctrl+Enterでコミット";
+            this.labelMessage.Text = "メッセージ(文字以内)  Ctrl+Enterでコミット";
             this.labelMessage.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // buttonCommit

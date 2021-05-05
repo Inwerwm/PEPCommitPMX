@@ -19,6 +19,7 @@ namespace CommitPMX
 
             InitializeComponent();
             Reload();
+            labelMessage.Text = $"メッセージ({MESSAGE_LIMIT}文字以内)  Ctrl+Enterでコミット";
         }
 
         internal void Reload()
@@ -37,7 +38,15 @@ namespace CommitPMX
             if (textBoxMessage.Text.Length > MESSAGE_LIMIT)
                 textBoxMessage.Text = textBoxMessage.Text.Substring(0, MESSAGE_LIMIT);
 
-            textBoxMessage.SelectionStart = selectionTmp;
+            if(textBoxMessage.Text.Contains(Environment.NewLine))
+            {
+                // 改行文字分カーソル位置を戻す
+                selectionTmp -= 2;
+                textBoxMessage.Text = textBoxMessage.Text.Replace(Environment.NewLine, "");
+            }
+
+            // 文字キーとエンターキーを同時押しされるとselectionTmpが負になる場合がある
+            textBoxMessage.SelectionStart = Math.Max(selectionTmp, 0);
         }
 
         private void checkBoxAmend_CheckedChanged(object sender, EventArgs e)

@@ -1,10 +1,12 @@
 ﻿using PEPlugin.Form;
 using PEPlugin.Pmx;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace CommitPMX
 {
@@ -26,13 +28,15 @@ namespace CommitPMX
             var modelPath = model.FilePath;
             DirectoryToCommit = Path.Combine(Path.GetDirectoryName(modelPath), $"CommitLog_{Path.GetFileNameWithoutExtension(Model.FilePath)}");
             Message = message;
-
-            Directory.CreateDirectory(DirectoryToCommit);
         }
 
         public void Invoke()
         {
-            WriteLog();
+            // 書込用ディレクトリを作成
+            // 既存の場合何もおこらない
+            Directory.CreateDirectory(DirectoryToCommit);
+            // 別に時間がかかる処理でもないがなんとなく非同期でやる
+            Task.Run(WriteLog);
             WriteModel();
         }
 
@@ -41,41 +45,42 @@ namespace CommitPMX
             string pathOfLog = Path.Combine(DirectoryToCommit, "CommitLog.csv");
             var existLogFile = File.Exists(pathOfLog);
 
-            using (StreamWriter writer = new StreamWriter(pathOfLog, true, Encoding.UTF8))
-            {
-                // 初期作成ファイルにヘッダーを記入
-                if (!existLogFile)
-                    writer.WriteLine("\"日付\",\"メッセージ\"");
+            var logTexts = new List<string>(2);
+            if (!existLogFile)
+                logTexts.Add("\"Date\",\"Message\"");
+            logTexts.Add($"\"{CommitTime:yyyy/MM/dd HH:mm:ss.ff}\",\"{Message.Replace("\"", "\"\"")}\"");
 
-                writer.WriteLine($"\"{CommitTime:yyyy/MM/dd HH:mm:ss.ff}\",\"{Message.Replace("\"", "\"\"")}\"");
-            }
+            File.AppendAllLines(pathOfLog, logTexts);
         }
 
         private void WriteModel()
         {
-            var modelPath = Model.FilePath;
-            var commitPath = Path.Combine(DirectoryToCommit, $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Message, @"[<>:\/\\|? *""]", "")}");
+            string logModelFilename = $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Message, @"[<>:\/\\|? *""]", "")}.pmx";
 
-            // フルパスの長さには上限があるので
-            // 少し余裕を持ったパス名にする
-            if (commitPath.Length > 250)
-                commitPath = commitPath.Substring(0, 250);
-            string savePath = $"{commitPath}.pmx";
+            var modelPathTmp = Model.FilePath;
+            Connector.SavePMXFile(logModelFilename);
+            // コミット保存をした時点でModel.FilePathの値が書き換わるのでもとに戻す
+            Model.FilePath = modelPathTmp;
+            // 上書き保存
+            Connector.SavePMXFile(Model.FilePath);
 
-            Connector.SavePMXFile(savePath);
+            // アーカイブに追加する処理は時間がかかる可能性があることも考えて非同期でやる
+            Task.Run(() =>
+            {
+                // アーカイブに履歴モデルを追加
+                string archivePath = Path.Combine(DirectoryToCommit, "archive.zip");
+                AddFileToArchive(logModelFilename, archivePath);
+                // 未圧縮ファイルを削除
+                File.Delete(logModelFilename);
+            });
+        }
 
-            // Zipファイルに圧縮
-            string archivePath = Path.Combine(DirectoryToCommit, "archive.zip");
+        private void AddFileToArchive(string filePath, string archivePath)
+        {
             using (var archive = ZipFile.Open(archivePath, File.Exists(archivePath) ? ZipArchiveMode.Update : ZipArchiveMode.Create))
             {
-                archive.CreateEntryFromFile(savePath, Path.GetFileName(savePath), CompressionLevel.Optimal);
+                archive.CreateEntryFromFile(filePath, Path.GetFileName(filePath), CompressionLevel.Optimal);
             }
-            // 未圧縮ファイルを削除
-            File.Delete(savePath);
-
-            // コミット保存をした時点でModel.FilePathの値が書き換わるのでもとに戻す
-            Model.FilePath = modelPath;
-            Connector.SavePMXFile(Model.FilePath);
         }
     }
 }
