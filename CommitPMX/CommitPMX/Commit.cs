@@ -27,12 +27,13 @@ namespace CommitPMX
             var modelPath = model.FilePath;
             DirectoryToCommit = Path.Combine(Path.GetDirectoryName(modelPath), $"CommitLog_{Path.GetFileNameWithoutExtension(Model.FilePath)}");
             Message = message;
-
-            Directory.CreateDirectory(DirectoryToCommit);
         }
 
         public void Invoke()
         {
+            // 書込用ディレクトリを作成
+            // 既存の場合何もおこらない
+            Directory.CreateDirectory(DirectoryToCommit);
             WriteLog();
             WriteModel();
         }
