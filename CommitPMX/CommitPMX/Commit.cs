@@ -37,6 +37,7 @@ namespace CommitPMX
             Directory.CreateDirectory(DirectoryToCommit);
             // 上書き保存
             Connector.SavePMXFile(Model.FilePath);
+            // 別に時間がかかる処理でもないがなんとなく非同期でやる
             Task.Run(WriteLog);
             WriteModel();
         }
