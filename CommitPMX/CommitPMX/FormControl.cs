@@ -19,6 +19,7 @@ namespace CommitPMX
 
             InitializeComponent();
             Reload();
+            labelMessage.Text = $"メッセージ({MESSAGE_LIMIT}文字以内)  Ctrl+Enterでコミット";
         }
 
         internal void Reload()
