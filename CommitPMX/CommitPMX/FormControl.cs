@@ -48,7 +48,7 @@ namespace CommitPMX
 
         private void buttonCommit_Click(object sender, EventArgs e)
         {
-            new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxMessage.Text).Invoke();
+            new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxMessage.Text.Replace(Environment.NewLine, " ")).Invoke();
             textBoxMessage.Clear();
         }
 
