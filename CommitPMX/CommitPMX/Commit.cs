@@ -1,6 +1,7 @@
 ﻿using PEPlugin.Form;
 using PEPlugin.Pmx;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -41,14 +42,12 @@ namespace CommitPMX
             string pathOfLog = Path.Combine(DirectoryToCommit, "CommitLog.csv");
             var existLogFile = File.Exists(pathOfLog);
 
-            using (StreamWriter writer = new StreamWriter(pathOfLog, true, Encoding.UTF8))
-            {
-                // 初期作成ファイルにヘッダーを記入
-                if (!existLogFile)
-                    writer.WriteLine("\"日付\",\"メッセージ\"");
+            var logTexts = new List<string>(2);
+            if (!existLogFile)
+                logTexts.Add("\"Date\",\"Message\"");
+            logTexts.Add($"\"{CommitTime:yyyy/MM/dd HH:mm:ss.ff}\",\"{Message.Replace("\"", "\"\"")}\"");
 
-                writer.WriteLine($"\"{CommitTime:yyyy/MM/dd HH:mm:ss.ff}\",\"{Message.Replace("\"", "\"\"")}\"");
-            }
+            File.AppendAllLines(pathOfLog, logTexts);
         }
 
         private void WriteModel()
