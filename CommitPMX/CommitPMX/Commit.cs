@@ -35,8 +35,6 @@ namespace CommitPMX
             // 書込用ディレクトリを作成
             // 既存の場合何もおこらない
             Directory.CreateDirectory(DirectoryToCommit);
-            // 上書き保存
-            Connector.SavePMXFile(Model.FilePath);
             // 別に時間がかかる処理でもないがなんとなく非同期でやる
             Task.Run(WriteLog);
             WriteModel();
@@ -63,6 +61,8 @@ namespace CommitPMX
             Connector.SavePMXFile(logModelFilename);
             // コミット保存をした時点でModel.FilePathの値が書き換わるのでもとに戻す
             Model.FilePath = modelPathTmp;
+            // 上書き保存
+            Connector.SavePMXFile(Model.FilePath);
 
             // アーカイブに追加する処理は時間がかかる可能性があることも考えて非同期でやる
             Task.Run(() =>
