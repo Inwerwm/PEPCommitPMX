@@ -56,16 +56,10 @@ namespace CommitPMX
 
         private void WriteModel()
         {
+            string logModelFilename = $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Message, @"[<>:\/\\|? *""]", "")}.pmx";
+
             var modelPath = Model.FilePath;
-            var commitPath = Path.Combine(DirectoryToCommit, $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Message, @"[<>:\/\\|? *""]", "")}");
-
-            // フルパスの長さには上限があるので
-            // 少し余裕を持ったパス名にする
-            if (commitPath.Length > 250)
-                commitPath = commitPath.Substring(0, 250);
-            string savePath = $"{commitPath}.pmx";
-
-            Connector.SavePMXFile(savePath);
+            Connector.SavePMXFile(logModelFilename);
             // コミット保存をした時点でModel.FilePathの値が書き換わるのでもとに戻す
             Model.FilePath = modelPath;
 
@@ -74,9 +68,9 @@ namespace CommitPMX
             {
                 // アーカイブに履歴モデルを追加
                 string archivePath = Path.Combine(DirectoryToCommit, "archive.zip");
-                AddFileToArchive(savePath, archivePath);
+                AddFileToArchive(logModelFilename, archivePath);
                 // 未圧縮ファイルを削除
-                File.Delete(savePath);
+                File.Delete(logModelFilename);
             });
         }
 
