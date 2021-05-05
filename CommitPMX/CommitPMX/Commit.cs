@@ -58,10 +58,10 @@ namespace CommitPMX
         {
             string logModelFilename = $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Message, @"[<>:\/\\|? *""]", "")}.pmx";
 
-            var modelPath = Model.FilePath;
+            var modelPathTmp = Model.FilePath;
             Connector.SavePMXFile(logModelFilename);
             // コミット保存をした時点でModel.FilePathの値が書き換わるのでもとに戻す
-            Model.FilePath = modelPath;
+            Model.FilePath = modelPathTmp;
 
             // アーカイブに追加する処理は時間がかかる可能性があることも考えて非同期でやる
             Task.Run(() =>
