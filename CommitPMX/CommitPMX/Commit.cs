@@ -12,6 +12,8 @@ namespace CommitPMX
 {
     class Commit
     {
+        public static string ArchiveName => "archive";
+
         public IPXPmx Model { get; }
         public DateTime CommitTime { get; }
         public string Message { get; }
@@ -73,7 +75,7 @@ namespace CommitPMX
             Task.Run(() =>
             {
                 // アーカイブに履歴モデルを追加
-                string archivePath = Path.Combine(DirectoryToCommit, "archive");
+                string archivePath = Path.Combine(DirectoryToCommit, ArchiveName);
                 Compressor.AddFileToArchive(logModelFilename, archivePath);
                 // 未圧縮ファイルを削除
                 File.Delete(logModelFilename);
