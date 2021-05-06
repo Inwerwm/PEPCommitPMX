@@ -44,6 +44,7 @@ namespace CommitPMX
 
             SevenZipBase.SetLibraryPath(sevenZipLibraryPath);
             Compressor.ArchiveFormat = format;
+            Compressor.PreserveDirectoryRoot = false;
             Compressor.CompressionLevel = CompressionLevel.Ultra;
         }
 
@@ -52,6 +53,25 @@ namespace CommitPMX
             string archiveFullName = archivePath + extString;
             Compressor.CompressionMode = System.IO.File.Exists(archiveFullName) ? CompressionMode.Append : CompressionMode.Create;
             Compressor.CompressFiles(archiveFullName, filePath);
+        }
+
+        /// <summary>
+        /// 対象アーカイブを再圧縮する
+        /// 1つずつ追加されたアーカイブをまとめて圧縮することで圧縮率が向上する
+        /// </summary>
+        /// <param name="archivePath">対象アーカイブへのパス</param>
+        public void ReCompress(string archivePath)
+        {
+            var archiveDir = System.IO.Path.GetDirectoryName(archivePath);
+            var extractDir = System.IO.Path.Combine(archiveDir, "tmp");
+
+            var extractor = new SevenZipExtractor(archivePath);
+            extractor.ExtractArchive(extractDir);
+
+            Compressor.CompressionMode = CompressionMode.Create;
+            Compressor.CompressDirectory(extractDir, archivePath);
+
+            System.IO.Directory.Delete(extractDir, true);
         }
     }
 }
