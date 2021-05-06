@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="Commit.cs" />
     <Compile Include="Compressor\ICompressor.cs" />
+    <Compile Include="Compressor\SevenZipCompressor.cs" />
     <Compile Include="Compressor\StandardCompressor.cs" />
     <Compile Include="PluginMain.cs" />
     <Compile Include="FormControl.cs">
