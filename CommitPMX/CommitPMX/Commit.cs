@@ -70,7 +70,7 @@ namespace CommitPMX
             Task.Run(() =>
             {
                 // アーカイブに履歴モデルを追加
-                string archivePath = Path.Combine(DirectoryToCommit, "archive.zip");
+                string archivePath = Path.Combine(DirectoryToCommit, "archive");
                 Compressor.AddFileToArchive(logModelFilename, archivePath);
                 // 未圧縮ファイルを削除
                 File.Delete(logModelFilename);
