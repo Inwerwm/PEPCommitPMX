@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CommitPMX.Compressor
+namespace CommitPMX
 {
     /// <summary>
     /// .NET 標準ライブラリによる圧縮
