@@ -56,6 +56,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commit.cs" />
+    <Compile Include="Compressor\ICompressor.cs" />
+    <Compile Include="Compressor\StandardCompressor.cs" />
     <Compile Include="PluginMain.cs" />
     <Compile Include="FormControl.cs">
       <SubType>Form</SubType>
@@ -73,5 +75,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
