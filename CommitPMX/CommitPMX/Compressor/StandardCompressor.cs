@@ -15,7 +15,8 @@ namespace CommitPMX
     {
         public void AddFileToArchive(string filePath, string archivePath)
         {
-            using (var archive = ZipFile.Open(archivePath, File.Exists(archivePath) ? ZipArchiveMode.Update : ZipArchiveMode.Create))
+            string archiveFullName = archivePath + ".zip";
+            using (var archive = ZipFile.Open(archiveFullName, File.Exists(archiveFullName) ? ZipArchiveMode.Update : ZipArchiveMode.Create))
                 archive.CreateEntryFromFile(filePath, Path.GetFileName(filePath), CompressionLevel.Optimal);
         }
     }

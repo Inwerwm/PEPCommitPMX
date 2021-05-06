@@ -9,6 +9,7 @@ namespace CommitPMX
 {
     class SevenZipCompressor : ICompressor
     {
+        private string extString;
         private SevenZip.SevenZipCompressor Compressor { get; } = new SevenZip.SevenZipCompressor();
 
         /// <summary>
@@ -22,9 +23,11 @@ namespace CommitPMX
             {
                 case OutArchiveFormat.SevenZip:
                     Compressor.CompressionMethod = CompressionMethod.Lzma2;
+                    extString = ".7z";
                     break;
                 case OutArchiveFormat.Zip:
                     Compressor.CompressionMethod = CompressionMethod.Lzma;
+                    extString = ".zip";
                     break;
                 //case OutArchiveFormat.GZip:
                 //    break;
@@ -46,7 +49,7 @@ namespace CommitPMX
 
         public void AddFileToArchive(string filePath, string archivePath)
         {
-            Compressor.CompressFiles(archivePath, filePath);
+            Compressor.CompressFiles(archivePath + extString, filePath);
         }
     }
 }
