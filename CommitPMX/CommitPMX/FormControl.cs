@@ -1,6 +1,7 @@
 ﻿using PEPlugin;
 using PEPlugin.Pmx;
 using System;
+using System.IO;
 using System.Windows.Forms;
 
 namespace CommitPMX
@@ -56,7 +57,8 @@ namespace CommitPMX
 
         private void buttonCommit_Click(object sender, EventArgs e)
         {
-            new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxMessage.Text, new StandardCompressor()).Invoke();
+            var compressor = new SevenZipCompressor(Path.Combine(Path.GetDirectoryName(Args.ModulePath), "7z.dll"), SevenZip.OutArchiveFormat.SevenZip);
+            new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxMessage.Text, compressor).Invoke();
             textBoxMessage.Clear();
         }
 

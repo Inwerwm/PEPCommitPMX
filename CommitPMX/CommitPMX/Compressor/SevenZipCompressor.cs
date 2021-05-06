@@ -49,7 +49,9 @@ namespace CommitPMX
 
         public void AddFileToArchive(string filePath, string archivePath)
         {
-            Compressor.CompressFiles(archivePath + extString, filePath);
+            string archiveFullName = archivePath + extString;
+            Compressor.CompressionMode = System.IO.File.Exists(archiveFullName) ? CompressionMode.Append : CompressionMode.Create;
+            Compressor.CompressFiles(archiveFullName, filePath);
         }
     }
 }
