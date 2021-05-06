@@ -15,15 +15,17 @@ namespace CommitPMX
         public IPXPmx Model { get; }
         public DateTime CommitTime { get; }
         public string Message { get; }
+        private ICompressor Compressor { get; }
 
         private IPEFormConnector Connector { get; set; }
         private string DirectoryToCommit { get; set; }
 
-        public Commit(IPXPmx model, IPEFormConnector connector, string message)
+        public Commit(IPXPmx model, IPEFormConnector connector, string message, ICompressor compressor)
         {
             Connector = connector;
             Model = model;
             CommitTime = DateTime.Now;
+            Compressor = compressor;
 
             var modelPath = model.FilePath;
             DirectoryToCommit = Path.Combine(Path.GetDirectoryName(modelPath), $"CommitLog_{Path.GetFileNameWithoutExtension(Model.FilePath)}");
@@ -69,18 +71,10 @@ namespace CommitPMX
             {
                 // アーカイブに履歴モデルを追加
                 string archivePath = Path.Combine(DirectoryToCommit, "archive.zip");
-                AddFileToArchive(logModelFilename, archivePath);
+                Compressor.AddFileToArchive(logModelFilename, archivePath);
                 // 未圧縮ファイルを削除
                 File.Delete(logModelFilename);
             });
-        }
-
-        private void AddFileToArchive(string filePath, string archivePath)
-        {
-            using (var archive = ZipFile.Open(archivePath, File.Exists(archivePath) ? ZipArchiveMode.Update : ZipArchiveMode.Create))
-            {
-                archive.CreateEntryFromFile(filePath, Path.GetFileName(filePath), CompressionLevel.Optimal);
-            }
         }
     }
 }
