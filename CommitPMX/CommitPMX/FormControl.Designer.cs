@@ -146,6 +146,7 @@ namespace CommitPMX
             this.radioButtonZip.TabStop = true;
             this.radioButtonZip.Text = "zip";
             this.radioButtonZip.UseVisualStyleBackColor = true;
+            this.radioButtonZip.CheckedChanged += new System.EventHandler(this.radioButtonZip_CheckedChanged);
             // 
             // radioButton7z
             // 
@@ -157,6 +158,7 @@ namespace CommitPMX
             this.radioButton7z.TabStop = true;
             this.radioButton7z.Text = "7z";
             this.radioButton7z.UseVisualStyleBackColor = true;
+            this.radioButton7z.CheckedChanged += new System.EventHandler(this.radioButton7z_CheckedChanged);
             // 
             // FormControl
             // 
@@ -170,6 +172,7 @@ namespace CommitPMX
             this.Name = "FormControl";
             this.Text = "CommitPMX";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormControl_FormClosing);
+            this.Load += new System.EventHandler(this.FormControl_Load);
             this.tableLayoutPanelMain.ResumeLayout(false);
             this.tableLayoutPanelMain.PerformLayout();
             this.groupBoxArchiveFormat.ResumeLayout(false);

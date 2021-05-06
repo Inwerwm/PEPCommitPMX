@@ -9,8 +9,8 @@ namespace CommitPMX
 {
     class SevenZipCompressor : ICompressor
     {
-        private string extString;
         private SevenZip.SevenZipCompressor Compressor { get; } = new SevenZip.SevenZipCompressor();
+        public string ExtString { get;}
 
         /// <summary>
         /// コンストラクタ
@@ -23,11 +23,11 @@ namespace CommitPMX
             {
                 case OutArchiveFormat.SevenZip:
                     Compressor.CompressionMethod = CompressionMethod.Lzma2;
-                    extString = ".7z";
+                    ExtString = ".7z";
                     break;
                 case OutArchiveFormat.Zip:
                     Compressor.CompressionMethod = CompressionMethod.Lzma;
-                    extString = ".zip";
+                    ExtString = ".zip";
                     break;
                 //case OutArchiveFormat.GZip:
                 //    break;
@@ -50,7 +50,7 @@ namespace CommitPMX
 
         public void AddFileToArchive(string filePath, string archivePath)
         {
-            string archiveFullName = archivePath + extString;
+            string archiveFullName = archivePath + ExtString;
             Compressor.CompressionMode = System.IO.File.Exists(archiveFullName) ? CompressionMode.Append : CompressionMode.Create;
             Compressor.CompressFiles(archiveFullName, filePath);
         }
@@ -59,17 +59,18 @@ namespace CommitPMX
         /// 対象アーカイブを再圧縮する
         /// 1つずつ追加されたアーカイブをまとめて圧縮することで圧縮率が向上する
         /// </summary>
-        /// <param name="archivePath">対象アーカイブへのパス</param>
+        /// <param name="archivePath">対象アーカイブへのパス アーカイブ名に拡張子はいらない</param>
         public void ReCompress(string archivePath)
         {
-            var archiveDir = System.IO.Path.GetDirectoryName(archivePath);
+            string archivePathWithExt = archivePath + ExtString;
+            var archiveDir = System.IO.Path.GetDirectoryName(archivePathWithExt);
             var extractDir = System.IO.Path.Combine(archiveDir, "tmp");
 
-            var extractor = new SevenZipExtractor(archivePath);
+            var extractor = new SevenZipExtractor(archivePathWithExt);
             extractor.ExtractArchive(extractDir);
 
             Compressor.CompressionMode = CompressionMode.Create;
-            Compressor.CompressDirectory(extractDir, archivePath);
+            Compressor.CompressDirectory(extractDir, archivePathWithExt);
 
             System.IO.Directory.Delete(extractDir, true);
         }
