@@ -9,7 +9,7 @@ namespace CommitPMX
     {
         // gitのコメントは50文字以内推奨らしいので
         private readonly int MESSAGE_LIMIT = 50;
-
+        
         IPERunArgs Args { get; }
         SevenZip.OutArchiveFormat ArchiveFormat
         {
@@ -22,6 +22,8 @@ namespace CommitPMX
             }
         }
 
+        private string DefaultDescription { get; }
+
         public FormControl(IPERunArgs args)
         {
             Args = args;
@@ -29,6 +31,7 @@ namespace CommitPMX
             InitializeComponent();
             Reload();
             labelMessage.Text = $"メッセージ({MESSAGE_LIMIT}文字以内)  Ctrl+Enterでコミット";
+            DefaultDescription = textBoxDescription.Text;
         }
 
         internal void Reload()
@@ -138,6 +141,31 @@ namespace CommitPMX
         {
             if ((sender as RadioButton).Checked)
                 ArchiveFormat = SevenZip.OutArchiveFormat.Zip;
+        }
+
+        private void radioButton7z_MouseEnter(object sender, EventArgs e)
+        {
+            textBoxDescription.Text = $"高い圧縮率{Environment.NewLine}解凍には7zipが必要です。";
+        }
+
+        private void radioButtonZip_MouseHover(object sender, EventArgs e)
+        {
+            textBoxDescription.Text = $"低い圧縮率{Environment.NewLine}Windows標準機能で解凍できます。";
+        }
+
+        private void ResetDexcription()
+        {
+            textBoxDescription.Text = DefaultDescription;
+        }
+
+        private void radioButton7z_MouseLeave(object sender, EventArgs e)
+        {
+            ResetDexcription();
+        }
+
+        private void radioButtonZip_MouseLeave(object sender, EventArgs e)
+        {
+            ResetDexcription();
         }
     }
 }
