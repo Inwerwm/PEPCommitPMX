@@ -7,7 +7,7 @@ namespace CommitPMX
 {
     public partial class FormControl : Form
     {
-        // gitのコメントは50文字以内推奨らしいので
+        // gitのメッセージは50文字以内推奨らしいので
         private readonly int MESSAGE_LIMIT = 50;
         
         IPERunArgs Args { get; }
