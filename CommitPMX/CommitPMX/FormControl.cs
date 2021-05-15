@@ -11,6 +11,8 @@ namespace CommitPMX
         private readonly int MESSAGE_LIMIT = 50;
         
         IPERunArgs Args { get; }
+
+        SevenZipCompressor Compressor { get; }
         SevenZip.OutArchiveFormat ArchiveFormat
         {
             get => Properties.Settings.Default.ArchiveFormat;
@@ -32,6 +34,7 @@ namespace CommitPMX
             Reload();
             labelMessage.Text = $"メッセージ({MESSAGE_LIMIT}文字以内)  Ctrl+Enterでコミット";
             DefaultDescription = textBoxDescription.Text;
+            Compressor = new SevenZipCompressor(Path.Combine(Path.GetDirectoryName(Args.ModulePath), "7z.cdll"), ArchiveFormat);
         }
 
         internal void Reload()
@@ -98,8 +101,7 @@ namespace CommitPMX
 
         private void buttonCommit_Click(object sender, EventArgs e)
         {
-            var compressor = new SevenZipCompressor(Path.Combine(Path.GetDirectoryName(Args.ModulePath), "7z.dll"), ArchiveFormat);
-            new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxMessage.Text, compressor).Invoke();
+            new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxMessage.Text, Compressor).Invoke();
             textBoxMessage.Clear();
         }
 
@@ -119,15 +121,14 @@ namespace CommitPMX
         {
             string commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
             string archivePath = Path.Combine(commitDir, Commit.ArchiveName);
-            var compressor = new SevenZipCompressor(Path.Combine(Path.GetDirectoryName(Args.ModulePath), "7z.dll"), ArchiveFormat);
 
-            if (File.Exists(archivePath + compressor.ExtString))
+            if (File.Exists(archivePath + Compressor.ExtString))
             {
-                compressor.ReCompress(archivePath);
+                Compressor.ReCompress(archivePath);
             }
             else
             {
-                MessageBox.Show($"アーカイブファイルが見つかりませんでした。{Environment.NewLine}期待されたパス:{archivePath + compressor.ExtString}");
+                MessageBox.Show($"アーカイブファイルが見つかりませんでした。{Environment.NewLine}期待されたパス:{archivePath + Compressor.ExtString}");
             }
         }
 
