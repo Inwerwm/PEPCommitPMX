@@ -38,6 +38,7 @@ namespace CommitPMX
             this.groupBoxArchiveFormat = new System.Windows.Forms.GroupBox();
             this.radioButtonZip = new System.Windows.Forms.RadioButton();
             this.radioButton7z = new System.Windows.Forms.RadioButton();
+            this.buttonReconstruction = new System.Windows.Forms.Button();
             this.tableLayoutPanelMain.SuspendLayout();
             this.groupBoxArchiveFormat.SuspendLayout();
             this.SuspendLayout();
@@ -50,7 +51,7 @@ namespace CommitPMX
             this.textBoxMessage.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBoxMessage.Multiline = true;
             this.textBoxMessage.Name = "textBoxMessage";
-            this.textBoxMessage.Size = new System.Drawing.Size(396, 134);
+            this.textBoxMessage.Size = new System.Drawing.Size(396, 97);
             this.textBoxMessage.TabIndex = 0;
             this.textBoxMessage.TextChanged += new System.EventHandler(this.textBoxMessage_TextChanged);
             this.textBoxMessage.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxMessage_KeyPress);
@@ -72,7 +73,7 @@ namespace CommitPMX
             // 
             this.buttonCommit.Dock = System.Windows.Forms.DockStyle.Fill;
             this.buttonCommit.Enabled = false;
-            this.buttonCommit.Location = new System.Drawing.Point(3, 176);
+            this.buttonCommit.Location = new System.Drawing.Point(3, 139);
             this.buttonCommit.Name = "buttonCommit";
             this.buttonCommit.Size = new System.Drawing.Size(132, 68);
             this.buttonCommit.TabIndex = 2;
@@ -91,21 +92,23 @@ namespace CommitPMX
             this.tableLayoutPanelMain.Controls.Add(this.buttonReCompress, 0, 3);
             this.tableLayoutPanelMain.Controls.Add(this.textBoxDescription, 1, 3);
             this.tableLayoutPanelMain.Controls.Add(this.groupBoxArchiveFormat, 1, 2);
+            this.tableLayoutPanelMain.Controls.Add(this.buttonReconstruction, 0, 4);
             this.tableLayoutPanelMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanelMain.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanelMain.Name = "tableLayoutPanelMain";
-            this.tableLayoutPanelMain.RowCount = 4;
+            this.tableLayoutPanelMain.RowCount = 5;
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 74F));
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 74F));
+            this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 37F));
             this.tableLayoutPanelMain.Size = new System.Drawing.Size(404, 321);
             this.tableLayoutPanelMain.TabIndex = 3;
             // 
             // buttonReCompress
             // 
             this.buttonReCompress.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buttonReCompress.Location = new System.Drawing.Point(3, 250);
+            this.buttonReCompress.Location = new System.Drawing.Point(3, 213);
             this.buttonReCompress.Name = "buttonReCompress";
             this.buttonReCompress.Size = new System.Drawing.Size(132, 68);
             this.buttonReCompress.TabIndex = 4;
@@ -116,7 +119,7 @@ namespace CommitPMX
             // textBoxDescription
             // 
             this.textBoxDescription.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBoxDescription.Location = new System.Drawing.Point(141, 250);
+            this.textBoxDescription.Location = new System.Drawing.Point(141, 213);
             this.textBoxDescription.Multiline = true;
             this.textBoxDescription.Name = "textBoxDescription";
             this.textBoxDescription.ReadOnly = true;
@@ -129,7 +132,7 @@ namespace CommitPMX
             this.groupBoxArchiveFormat.Controls.Add(this.radioButtonZip);
             this.groupBoxArchiveFormat.Controls.Add(this.radioButton7z);
             this.groupBoxArchiveFormat.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBoxArchiveFormat.Location = new System.Drawing.Point(141, 176);
+            this.groupBoxArchiveFormat.Location = new System.Drawing.Point(141, 139);
             this.groupBoxArchiveFormat.Name = "groupBoxArchiveFormat";
             this.groupBoxArchiveFormat.Size = new System.Drawing.Size(260, 68);
             this.groupBoxArchiveFormat.TabIndex = 6;
@@ -164,6 +167,18 @@ namespace CommitPMX
             this.radioButton7z.MouseEnter += new System.EventHandler(this.radioButton7z_MouseEnter);
             this.radioButton7z.MouseLeave += new System.EventHandler(this.radioButton7z_MouseLeave);
             // 
+            // buttonReconstruction
+            // 
+            this.tableLayoutPanelMain.SetColumnSpan(this.buttonReconstruction, 2);
+            this.buttonReconstruction.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buttonReconstruction.Location = new System.Drawing.Point(3, 287);
+            this.buttonReconstruction.Name = "buttonReconstruction";
+            this.buttonReconstruction.Size = new System.Drawing.Size(398, 31);
+            this.buttonReconstruction.TabIndex = 7;
+            this.buttonReconstruction.Text = "復元ファイルの選択";
+            this.buttonReconstruction.UseVisualStyleBackColor = true;
+            this.buttonReconstruction.Click += new System.EventHandler(this.buttonReconstruction_Click);
+            // 
             // FormControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 21F);
@@ -196,5 +211,6 @@ namespace CommitPMX
         private System.Windows.Forms.GroupBox groupBoxArchiveFormat;
         private System.Windows.Forms.RadioButton radioButtonZip;
         private System.Windows.Forms.RadioButton radioButton7z;
+        private System.Windows.Forms.Button buttonReconstruction;
     }
 }

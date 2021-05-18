@@ -197,5 +197,11 @@ namespace CommitPMX
         {
             ResetDexcription();
         }
+
+        private void buttonReconstruction_Click(object sender, EventArgs e)
+        {
+            var recForm = new FormReconstruction(Args, Compressor);
+            recForm.ShowDialog(this);
+        }
     }
 }
