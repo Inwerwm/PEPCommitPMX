@@ -31,15 +31,14 @@ namespace CommitPMX
             Args = args;
 
             InitializeComponent();
-            Reload();
             labelMessage.Text = $"メッセージ({MESSAGE_LIMIT}文字以内)  Ctrl+Enterでコミット";
             DefaultDescription = textBoxDescription.Text;
-            Compressor = new SevenZipCompressor(Path.Combine(Path.GetDirectoryName(Args.ModulePath), "7z.cdll"), ArchiveFormat);
+            Reload();
         }
 
         internal void Reload()
         {
-            //Pmx = Args.Host.Connector.Pmx.GetCurrentState();
+            Compressor = new SevenZipCompressor(Path.Combine(Path.GetDirectoryName(Args.ModulePath), "7z.cdll"), ArchiveFormat);
         }
 
         private void SyncFormatSelection()
@@ -124,6 +123,10 @@ namespace CommitPMX
             (string Value, bool HasValue) exception = (null, false);
             try
             {
+                // 例外が1度でも発生したあとに圧縮しようとするとメモリエラーが発生する
+                // インスタンスを作り直すと起きないので暫定対応
+                Reload();
+
                 if (File.Exists(archivePath + Compressor.ExtString))
                 {
                     Compressor.ReCompress(archivePath);
@@ -143,9 +146,6 @@ namespace CommitPMX
                                   $"{ex.StackTrace}{Environment.NewLine}";
                 exception.HasValue = true;
                 MessageBox.Show($"アーカイブの再圧縮に失敗しました。{Environment.NewLine}{ex.Message}", "再圧縮の失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                // 失敗した後もう一度やるとメモリ関連エラーが出るのでインスタンスを作り直してみる
-                Compressor = new SevenZipCompressor(Path.Combine(Path.GetDirectoryName(Args.ModulePath), "7z.cdll"), ArchiveFormat);
             }
 
             try
