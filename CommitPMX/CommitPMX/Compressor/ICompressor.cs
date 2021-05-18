@@ -14,6 +14,7 @@ namespace CommitPMX
         /// </summary>
         /// <param name="filePath">追加されるファイルへのパス</param>
         /// <param name="archivePath">追加対象アーカイブへのパス 拡張子は無しで渡すこと</param>
-        void AddFileToArchive(string filePath, string archivePath);
+        /// <returns>追加に成功したか</returns>
+        bool AddFileToArchive(string filePath, string archivePath);
     }
 }

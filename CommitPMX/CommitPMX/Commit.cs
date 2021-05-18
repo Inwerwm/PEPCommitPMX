@@ -62,7 +62,7 @@ namespace CommitPMX
 
         private void WriteModel()
         {
-            string logModelFilename = $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Message, @"[<>:\/\\|? *""]", "")}.pmx";
+            string logModelFilename = Path.Combine(DirectoryToCommit, $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Message, @"[<>:\/\\|? *""]", "")}.pmx");
 
             var modelPathTmp = Model.FilePath;
             Connector.SavePMXFile(logModelFilename);
@@ -76,9 +76,11 @@ namespace CommitPMX
             {
                 // アーカイブに履歴モデルを追加
                 string archivePath = Path.Combine(DirectoryToCommit, ArchiveName);
-                Compressor.AddFileToArchive(logModelFilename, archivePath);
-                // 未圧縮ファイルを削除
-                File.Delete(logModelFilename);
+                if (Compressor.AddFileToArchive(logModelFilename, archivePath))
+                {
+                    // 未圧縮ファイルを削除
+                    File.Delete(logModelFilename);
+                }
             });
         }
     }
