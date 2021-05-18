@@ -11,6 +11,7 @@ namespace CommitPMX
     class Commit
     {
         public static string ArchiveName => "archive";
+        public static string LogCSVName => "CommitLog.csv";
 
         public IPXPmx Model { get; }
         public DateTime CommitTime { get; }
@@ -49,7 +50,7 @@ namespace CommitPMX
 
         private void WriteLog(bool saveSucceed)
         {
-            string pathOfLog = Path.Combine(DirectoryToCommit, "CommitLog.csv");
+            string pathOfLog = Path.Combine(DirectoryToCommit, LogCSVName);
             var existLogFile = File.Exists(pathOfLog);
 
             var logTexts = new List<string>(2);
