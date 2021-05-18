@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commit.cs" />
+    <Compile Include="CommitLog.cs" />
     <Compile Include="Compressor\ICompressor.cs" />
     <Compile Include="Compressor\SevenZipCompressor.cs" />
     <Compile Include="FormReconstruction.cs">
