@@ -59,10 +59,7 @@ namespace CommitPMX
                              : File.Exists(Path.Combine(DirectoryToCommit, Path.GetFileName(LogModelFilename))) ? DirectoryToCommit : "Unknown";
             
             var log = new CommitLog(CommitTime, Message, Path.GetFileName(LogModelFilename), format, savedPath);
-            var jsonLog = JsonConvert.SerializeObject(log, Formatting.None, new JsonSerializerSettings()
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            });
+            var jsonLog = JsonConvert.SerializeObject(log, Formatting.None);
             File.AppendAllText(pathOfLog, jsonLog + Environment.NewLine);
         }
 
