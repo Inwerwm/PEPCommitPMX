@@ -3,8 +3,6 @@ using PEPlugin.Pmx;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -74,12 +72,38 @@ namespace CommitPMX
             // アーカイブに追加する処理は時間がかかる可能性があることも考えて非同期でやる
             Task.Run(() =>
             {
+                (string Value, bool HasValue) exception = (null, false);
                 // アーカイブに履歴モデルを追加
                 string archivePath = Path.Combine(DirectoryToCommit, ArchiveName);
-                if (Compressor.AddFileToArchive(logModelFilename, archivePath))
+
+                try
                 {
+                    Compressor.AddFileToArchive(logModelFilename, archivePath);
                     // 未圧縮ファイルを削除
                     File.Delete(logModelFilename);
+                }
+                catch (Exception ex)
+                {
+                    exception.Value = $"========================================{Environment.NewLine}" +
+                                      $"{DateTime.Now:G}{Environment.NewLine}" +
+                                      $"{ex.GetType()}{Environment.NewLine}" +
+                                      $"'{archivePath + Compressor.ExtString}'に'{logModelFilename}'を追加するときに例外が発生しました。{Environment.NewLine}" +
+                                      $"{ex.Message}{Environment.NewLine}" +
+                                      $"{ex.StackTrace}{Environment.NewLine}";
+                    exception.HasValue = true;
+                    System.Windows.Forms.MessageBox.Show($"アーカイブへの追加に失敗しました。{Environment.NewLine}{ex.Message}", "コミットの失敗", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+                }
+
+                try
+                {
+                    if (exception.HasValue)
+                    {
+                        File.AppendAllText(DirectoryToCommit + "Exceptions.log", exception.Value);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.Forms.MessageBox.Show($"例外履歴の書込に失敗しました。{Environment.NewLine}{ex.Message}", "例外履歴書込の失敗", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
                 }
             });
         }

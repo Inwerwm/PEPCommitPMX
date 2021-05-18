@@ -9,12 +9,16 @@ namespace CommitPMX
     interface ICompressor
     {
         /// <summary>
+        /// アーカイブの拡張子
+        /// </summary>
+        string ExtString { get; }
+
+        /// <summary>
         /// アーカイブにファイルを追加
         /// アーカイブが存在しなければ作る
         /// </summary>
         /// <param name="filePath">追加されるファイルへのパス</param>
         /// <param name="archivePath">追加対象アーカイブへのパス 拡張子は無しで渡すこと</param>
-        /// <returns>追加に成功したか</returns>
-        bool AddFileToArchive(string filePath, string archivePath);
+        void AddFileToArchive(string filePath, string archivePath);
     }
 }

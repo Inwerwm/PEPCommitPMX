@@ -11,7 +11,7 @@ namespace CommitPMX
     class SevenZipCompressor : ICompressor
     {
         private SevenZip.SevenZipCompressor Compressor { get; } = new SevenZip.SevenZipCompressor();
-        public string ExtString { get;}
+        public string ExtString { get; }
 
         /// <summary>
         /// コンストラクタ
@@ -49,35 +49,18 @@ namespace CommitPMX
             Compressor.CompressionLevel = CompressionLevel.Ultra;
         }
 
-        public bool AddFileToArchive(string filePath, string archivePath)
+        public void AddFileToArchive(string filePath, string archivePath)
         {
-            (string Value, bool HasValue) exception = (null, false);
-
             string archiveFullName = archivePath + ExtString;
             try
             {
                 Compressor.CompressionMode = File.Exists(archiveFullName) ? CompressionMode.Append : CompressionMode.Create;
                 Compressor.CompressFiles(archiveFullName, filePath);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                exception.Value = $"========================================{Environment.NewLine}" +
-                                  $"{DateTime.Now:G}{Environment.NewLine}" +
-                                  $"Exception occurred in adding {filePath} to {archiveFullName}{Environment.NewLine}" +
-                                  $"{ex.GetType()}{Environment.NewLine}" +
-                                  $"{ex.Message}{Environment.NewLine}" +
-                                  $"{ex.StackTrace}{Environment.NewLine}";
-                exception.HasValue = true;
-                System.Windows.Forms.MessageBox.Show($"アーカイブへの追加に失敗しました。{Environment.NewLine}{ex.Message}", "コミットの失敗", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+                throw;
             }
-
-            if (exception.HasValue)
-            {
-                string commitDir = Path.GetDirectoryName(archivePath);
-                File.AppendAllText(Path.Combine(commitDir, "Exceptions.log"), exception.Value);
-            }
-
-            return !exception.HasValue;
         }
 
         /// <summary>
