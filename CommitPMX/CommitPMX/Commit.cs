@@ -54,10 +54,9 @@ namespace CommitPMX
         {
             string pathOfLog = Path.Combine(DirectoryToCommit, LogFileName);
 
-            string format = saveSucceed ? Compressor.ArchiveFormat.ToString() : "Compression Failed";
+            SevenZip.OutArchiveFormat? format = saveSucceed ? Compressor.ArchiveFormat : (SevenZip.OutArchiveFormat?)null;
             string savedPath = saveSucceed ? ArchivePath + Compressor.ExtString
                              : File.Exists(Path.Combine(DirectoryToCommit, Path.GetFileName(LogModelFilename))) ? DirectoryToCommit : "Unknown";
-            
             var log = new CommitLog(CommitTime, Message, Path.GetFileName(LogModelFilename), format, savedPath);
             var jsonLog = JsonConvert.SerializeObject(log, Formatting.None);
             File.AppendAllText(pathOfLog, jsonLog + Environment.NewLine);

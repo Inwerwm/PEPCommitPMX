@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
+using SevenZip;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CommitPMX
 {
@@ -14,16 +10,48 @@ namespace CommitPMX
         public DateTime Date { get; }
         public string Message { get; }
         public string Filename { get; }
-        public string ArchiveFormat { get; }
+        public ArchiveFormat Format { get; }
         public string SavedPath { get; }
 
-        public CommitLog(DateTime date, string message, string fileName, string archiveFormat, string savedPath)
+        public CommitLog(DateTime date, string message, string fileName, ArchiveFormat format, string savedPath)
         {
             Date = date;
             Message = message;
             Filename = fileName;
-            ArchiveFormat = archiveFormat;
+            Format = format;
             SavedPath = savedPath;
         }
+
+        public CommitLog(DateTime date, string message, string fileName, OutArchiveFormat? format, string savedPath){
+            Date = date;
+            Message = message;
+            Filename = fileName;
+            Format = ConvertFormatEnum(format);
+            SavedPath = savedPath;
+        }
+
+        public static ArchiveFormat ConvertFormatEnum(OutArchiveFormat? szFormat)
+        {
+            if (!szFormat.HasValue)
+                return ArchiveFormat.Unknown;
+
+            switch (szFormat)
+            {
+                case OutArchiveFormat.SevenZip:
+                    return ArchiveFormat.SevenZip;
+                case OutArchiveFormat.Zip:
+                    return ArchiveFormat.Zip;
+                default:
+                    return ArchiveFormat.Unknown;
+            }
+        }
     }
+
+    public enum ArchiveFormat
+    {
+        Zip,
+        SevenZip,
+        Unknown
+    }
+}
 }
