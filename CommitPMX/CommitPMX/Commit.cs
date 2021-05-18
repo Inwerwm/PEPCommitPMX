@@ -12,7 +12,7 @@ namespace CommitPMX
     class Commit
     {
         public static string ArchiveName => "archive";
-        public static string LogCSVName => "CommitLog.csv";
+        public static string LogFileName => "CommitLog.json";
 
         public IPXPmx Model { get; }
         public DateTime CommitTime { get; }
@@ -51,7 +51,7 @@ namespace CommitPMX
 
         private void WriteLog(bool saveSucceed)
         {
-            string pathOfLog = Path.Combine(DirectoryToCommit, LogCSVName);
+            string pathOfLog = Path.Combine(DirectoryToCommit, LogFileName);
 
             string format = saveSucceed ? Compressor.ArchiveFormat.ToString() : "Compression Failed";
             string savedPath = saveSucceed ? ArchivePath + Compressor.ExtString
