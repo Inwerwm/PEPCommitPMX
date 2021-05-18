@@ -13,20 +13,13 @@ namespace CommitPMX
     /// </summary>
     class StandardCompressor : ICompressor
     {
-        public bool AddFileToArchive(string filePath, string archivePath)
-        {
-            string archiveFullName = archivePath + ".zip";
-            try
-            {
-                using (var archive = ZipFile.Open(archiveFullName, File.Exists(archiveFullName) ? ZipArchiveMode.Update : ZipArchiveMode.Create))
-                    archive.CreateEntryFromFile(filePath, Path.GetFileName(filePath), CompressionLevel.Optimal);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+        public string ExtString => ".zip";
 
-            return true;
+        public void AddFileToArchive(string filePath, string archivePath)
+        {
+            string archiveFullName = archivePath + ExtString;
+            using (var archive = ZipFile.Open(archiveFullName, File.Exists(archiveFullName) ? ZipArchiveMode.Update : ZipArchiveMode.Create))
+                archive.CreateEntryFromFile(filePath, Path.GetFileName(filePath), CompressionLevel.Optimal);
         }
     }
 }
