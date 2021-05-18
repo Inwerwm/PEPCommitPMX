@@ -1,4 +1,5 @@
-﻿using PEPlugin.Form;
+﻿using Newtonsoft.Json;
+using PEPlugin.Form;
 using PEPlugin.Pmx;
 using System;
 using System.Collections.Generic;
@@ -57,17 +58,8 @@ namespace CommitPMX
                              : File.Exists(Path.Combine(DirectoryToCommit, Path.GetFileName(LogModelFilename))) ? DirectoryToCommit : "Unknown";
             var log = new CommitLog(CommitTime, Message, Path.GetFileName(LogModelFilename), format, savedPath);
 
-
-
-
-            var existLogFile = File.Exists(pathOfLog);
-
-            var logTexts = new List<string>(2);
-            if (!existLogFile)
-                logTexts.Add("\"Date\",\"Message\",\"Filename\",\"Archive Format\",\"Saved Path\"");
-            logTexts.Add($"\"{CommitTime:yyyy/MM/dd HH:mm:ss.ff}\",\"{Message.Replace("\"", "\"\"")}\",\"{Path.GetFileName(LogModelFilename)}\",\"{format}\",\"{savedPath}\"");
-
-            File.AppendAllLines(pathOfLog, logTexts);
+            var jsonLog = JsonConvert.SerializeObject(log, Formatting.Indented);
+            File.AppendAllText(pathOfLog, jsonLog + Environment.NewLine);
         }
 
         private bool WriteModel()
