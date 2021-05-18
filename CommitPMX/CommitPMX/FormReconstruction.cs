@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using PEPlugin;
 using System;
 using System.Collections.Generic;
@@ -31,7 +31,10 @@ namespace CommitPMX
             var commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
 
             var logFile = File.ReadLines(Path.Combine(commitDir, Commit.LogFileName));
-            dataGridViewCommits.DataSource = logFile.Select(JsonConvert.DeserializeObject<CommitLog>).ToArray();
+            dataGridViewCommits.DataSource = logFile.Select(JsonConvert.DeserializeObject<CommitLog>).Reverse().ToArray();
+            dataGridViewCommits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+        }
+
         }
     }
 }
