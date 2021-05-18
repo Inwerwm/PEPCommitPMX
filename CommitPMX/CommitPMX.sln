@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.31025.194
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommitPMX", "CommitPMX\CommitPMX.csproj", "{CCE0A290-286A-46BA-9685-8F777D2D7426}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommitPmxTest", "CommitPmxTest\CommitPmxTest.csproj", "{657AF015-A21D-4DDA-A151-52A454AEA741}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{CCE0A290-286A-46BA-9685-8F777D2D7426}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCE0A290-286A-46BA-9685-8F777D2D7426}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCE0A290-286A-46BA-9685-8F777D2D7426}.Release|Any CPU.Build.0 = Release|Any CPU
+		{657AF015-A21D-4DDA-A151-52A454AEA741}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{657AF015-A21D-4DDA-A151-52A454AEA741}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{657AF015-A21D-4DDA-A151-52A454AEA741}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{657AF015-A21D-4DDA-A151-52A454AEA741}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
