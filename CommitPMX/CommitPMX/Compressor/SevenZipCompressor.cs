@@ -8,6 +8,7 @@ namespace CommitPMX
     {
         private SevenZip.SevenZipCompressor Compressor { get; } = new SevenZip.SevenZipCompressor();
         public string ExtString { get; }
+        public OutArchiveFormat ArchiveFormat => Compressor.ArchiveFormat;
 
         /// <summary>
         /// コンストラクタ

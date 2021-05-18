@@ -13,6 +13,8 @@ namespace CommitPMX
         /// </summary>
         string ExtString { get; }
 
+        SevenZip.OutArchiveFormat ArchiveFormat { get; }
+
         /// <summary>
         /// アーカイブにファイルを追加
         /// アーカイブが存在しなければ作る
