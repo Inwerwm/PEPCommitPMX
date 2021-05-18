@@ -26,7 +26,6 @@ namespace CommitPMX
                 {
                     form = new FormControl(args);
                     form.Visible = true;
-                    form.Reload();
                 }
                 else
                 {

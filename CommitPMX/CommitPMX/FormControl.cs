@@ -12,7 +12,7 @@ namespace CommitPMX
         
         IPERunArgs Args { get; }
 
-        SevenZipCompressor Compressor { get; }
+        SevenZipCompressor Compressor { get; set; }
         SevenZip.OutArchiveFormat ArchiveFormat
         {
             get => Properties.Settings.Default.ArchiveFormat;
@@ -20,6 +20,7 @@ namespace CommitPMX
             {
                 Properties.Settings.Default.ArchiveFormat = value;
                 Properties.Settings.Default.Save();
+                Reload();
                 SyncFormatSelection();
             }
         }
@@ -31,15 +32,14 @@ namespace CommitPMX
             Args = args;
 
             InitializeComponent();
-            Reload();
             labelMessage.Text = $"メッセージ({MESSAGE_LIMIT}文字以内)  Ctrl+Enterでコミット";
             DefaultDescription = textBoxDescription.Text;
-            Compressor = new SevenZipCompressor(Path.Combine(Path.GetDirectoryName(Args.ModulePath), "7z.cdll"), ArchiveFormat);
+            Reload();
         }
 
         internal void Reload()
         {
-            //Pmx = Args.Host.Connector.Pmx.GetCurrentState();
+            Compressor = new SevenZipCompressor(Path.Combine(Path.GetDirectoryName(Args.ModulePath), "7z.cdll"), ArchiveFormat);
         }
 
         private void SyncFormatSelection()
@@ -121,14 +121,44 @@ namespace CommitPMX
         {
             string commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
             string archivePath = Path.Combine(commitDir, Commit.ArchiveName);
+            (string Value, bool HasValue) exception = (null, false);
+            try
+            {
+                // 例外が1度でも発生したあとに圧縮しようとするとメモリエラーが発生する
+                // インスタンスを作り直すと起きないので暫定対応
+                Reload();
 
-            if (File.Exists(archivePath + Compressor.ExtString))
-            {
-                Compressor.ReCompress(archivePath);
+                if (File.Exists(archivePath + Compressor.ExtString))
+                {
+                    Compressor.ReCompress(archivePath);
+                }
+                else
+                {
+                    MessageBox.Show($"アーカイブファイルが見つかりませんでした。{Environment.NewLine}期待されたパス:{archivePath + Compressor.ExtString}");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show($"アーカイブファイルが見つかりませんでした。{Environment.NewLine}期待されたパス:{archivePath + Compressor.ExtString}");
+                exception.Value = $"========================================{Environment.NewLine}" +
+                                  $"{DateTime.Now:G}{Environment.NewLine}" +
+                                  $"{ex.GetType()}{Environment.NewLine}" +
+                                  $"'{archivePath + Compressor.ExtString}'を再圧縮するときに例外が発生しました。{Environment.NewLine}" +
+                                  $"{ex.Message}{Environment.NewLine}" +
+                                  $"{ex.StackTrace}{Environment.NewLine}";
+                exception.HasValue = true;
+                MessageBox.Show($"アーカイブの再圧縮に失敗しました。{Environment.NewLine}{ex.Message}", "再圧縮の失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            try
+            {
+                if (exception.HasValue)
+                {
+                    File.AppendAllText(Path.Combine(commitDir, "Exceptions.log"), exception.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"例外履歴の書込に失敗しました。{Environment.NewLine}{ex.Message}", "例外履歴書込の失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -167,6 +197,12 @@ namespace CommitPMX
         private void radioButtonZip_MouseLeave(object sender, EventArgs e)
         {
             ResetDexcription();
+        }
+
+        private void buttonReconstruction_Click(object sender, EventArgs e)
+        {
+            var recForm = new FormReconstruction(Args, Compressor);
+            recForm.ShowDialog(this);
         }
     }
 }

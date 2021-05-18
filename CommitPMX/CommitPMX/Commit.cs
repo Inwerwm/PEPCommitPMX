@@ -1,10 +1,10 @@
-﻿using PEPlugin.Form;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using PEPlugin.Form;
 using PEPlugin.Pmx;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -13,6 +13,7 @@ namespace CommitPMX
     class Commit
     {
         public static string ArchiveName => "archive";
+        public static string LogFileName => "CommitLog.txt";
 
         public IPXPmx Model { get; }
         public DateTime CommitTime { get; }
@@ -21,6 +22,8 @@ namespace CommitPMX
 
         private IPEFormConnector Connector { get; set; }
         private string DirectoryToCommit { get; set; }
+        private string LogModelFilename => Path.Combine(DirectoryToCommit, $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Message, @"[<>:\/\\|? *""]", "")}.pmx");
+        private string ArchivePath => Path.Combine(DirectoryToCommit, ArchiveName);
 
         public static string BuildCommitDirectryPath(string modelPath) =>
             Path.Combine(Path.GetDirectoryName(modelPath), $"CommitLog_{Path.GetFileNameWithoutExtension(modelPath)}");
@@ -42,44 +45,70 @@ namespace CommitPMX
             // 書込用ディレクトリを作成
             // 既存の場合何もおこらない
             Directory.CreateDirectory(DirectoryToCommit);
-            // 別に時間がかかる処理でもないがなんとなく非同期でやる
-            Task.Run(WriteLog);
-            WriteModel();
+
+            var saveSucceed = WriteModel();
+            WriteLog(saveSucceed);
         }
 
-        private void WriteLog()
+        private void WriteLog(bool saveSucceed)
         {
-            string pathOfLog = Path.Combine(DirectoryToCommit, "CommitLog.csv");
-            var existLogFile = File.Exists(pathOfLog);
+            string pathOfLog = Path.Combine(DirectoryToCommit, LogFileName);
 
-            var logTexts = new List<string>(2);
-            if (!existLogFile)
-                logTexts.Add("\"Date\",\"Message\"");
-            logTexts.Add($"\"{CommitTime:yyyy/MM/dd HH:mm:ss.ff}\",\"{Message.Replace("\"", "\"\"")}\"");
-
-            File.AppendAllLines(pathOfLog, logTexts);
+            SevenZip.OutArchiveFormat? format = saveSucceed ? Compressor.ArchiveFormat : (SevenZip.OutArchiveFormat?)null;
+            string savedPath = saveSucceed ? ArchivePath + Compressor.ExtString
+                             : File.Exists(Path.Combine(DirectoryToCommit, Path.GetFileName(LogModelFilename))) ? DirectoryToCommit : "Unknown";
+            var log = new CommitLog(CommitTime, Message, Path.GetFileName(LogModelFilename), CommitLog.ConvertFormatEnum(format), savedPath);
+            var jsonLog = JsonConvert.SerializeObject(log, Formatting.None);
+            File.AppendAllText(pathOfLog, jsonLog + Environment.NewLine);
         }
 
-        private void WriteModel()
+        private bool WriteModel()
         {
-            string logModelFilename = $"{CommitTime:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(Message, @"[<>:\/\\|? *""]", "")}.pmx";
+            bool isSuccess = true;
 
             var modelPathTmp = Model.FilePath;
-            Connector.SavePMXFile(logModelFilename);
+            Connector.SavePMXFile(LogModelFilename);
             // コミット保存をした時点でModel.FilePathの値が書き換わるのでもとに戻す
             Model.FilePath = modelPathTmp;
             // 上書き保存
             Connector.SavePMXFile(Model.FilePath);
 
-            // アーカイブに追加する処理は時間がかかる可能性があることも考えて非同期でやる
-            Task.Run(() =>
+            // アーカイブに履歴モデルを追加
+            (string Value, bool HasValue) exception = (null, false);
+
+            try
             {
-                // アーカイブに履歴モデルを追加
-                string archivePath = Path.Combine(DirectoryToCommit, ArchiveName);
-                Compressor.AddFileToArchive(logModelFilename, archivePath);
+                Compressor.AddFileToArchive(LogModelFilename, ArchivePath);
                 // 未圧縮ファイルを削除
-                File.Delete(logModelFilename);
-            });
+                File.Delete(LogModelFilename);
+            }
+            catch (Exception ex)
+            {
+                exception.Value = $"========================================{Environment.NewLine}" +
+                                  $"{DateTime.Now:G}{Environment.NewLine}" +
+                                  $"{ex.GetType()}{Environment.NewLine}" +
+                                  $"'{ArchivePath + Compressor.ExtString}'に'{LogModelFilename}'を追加するときに例外が発生しました。{Environment.NewLine}" +
+                                  $"{ex.Message}{Environment.NewLine}" +
+                                  $"{ex.StackTrace}{Environment.NewLine}";
+                exception.HasValue = true;
+                System.Windows.Forms.MessageBox.Show($"アーカイブへの追加に失敗しました。{Environment.NewLine}{ex.Message}", "コミットの失敗", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+
+                isSuccess = false;
+            }
+
+            try
+            {
+                if (exception.HasValue)
+                {
+                    File.AppendAllText(DirectoryToCommit + "Exceptions.log", exception.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show($"例外履歴の書込に失敗しました。{Environment.NewLine}{ex.Message}", "例外履歴書込の失敗", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+            }
+
+            return isSuccess;
         }
     }
 }

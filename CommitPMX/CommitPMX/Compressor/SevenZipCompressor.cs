@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SevenZip;
+﻿using SevenZip;
+using System;
+using System.IO;
 
 namespace CommitPMX
 {
     class SevenZipCompressor : ICompressor
     {
         private SevenZip.SevenZipCompressor Compressor { get; } = new SevenZip.SevenZipCompressor();
-        public string ExtString { get;}
+        public string ExtString { get; }
+        public OutArchiveFormat ArchiveFormat => Compressor.ArchiveFormat;
 
         /// <summary>
         /// コンストラクタ
@@ -51,8 +49,15 @@ namespace CommitPMX
         public void AddFileToArchive(string filePath, string archivePath)
         {
             string archiveFullName = archivePath + ExtString;
-            Compressor.CompressionMode = System.IO.File.Exists(archiveFullName) ? CompressionMode.Append : CompressionMode.Create;
-            Compressor.CompressFiles(archiveFullName, filePath);
+            try
+            {
+                Compressor.CompressionMode = File.Exists(archiveFullName) ? CompressionMode.Append : CompressionMode.Create;
+                Compressor.CompressFiles(archiveFullName, filePath);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         /// <summary>
@@ -63,16 +68,57 @@ namespace CommitPMX
         public void ReCompress(string archivePath)
         {
             string archivePathWithExt = archivePath + ExtString;
-            var archiveDir = System.IO.Path.GetDirectoryName(archivePathWithExt);
-            var extractDir = System.IO.Path.Combine(archiveDir, "tmp");
+            var archiveDir = Path.GetDirectoryName(archivePathWithExt);
+            var extractDir = Path.Combine(archiveDir, ".extracted_archive_tmp");
 
-            var extractor = new SevenZipExtractor(archivePathWithExt);
-            extractor.ExtractArchive(extractDir);
+            try
+            {
+                if (Directory.Exists(extractDir))
+                {
+                    Directory.Delete(extractDir, true);
+                }
 
-            Compressor.CompressionMode = CompressionMode.Create;
-            Compressor.CompressDirectory(extractDir, archivePathWithExt);
+                using (var extractor = new SevenZipExtractor(archivePathWithExt))
+                    extractor.ExtractArchive(extractDir);
 
-            System.IO.Directory.Delete(extractDir, true);
+                var dirInfo = new DirectoryInfo(extractDir);
+                dirInfo.Attributes |= FileAttributes.Hidden;
+
+                Compressor.CompressionMode = CompressionMode.Create;
+                Compressor.CompressDirectory(extractDir, archivePathWithExt);
+
+                Directory.Delete(extractDir, true);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// アーカイブ内から指定ファイルを解凍する
+        /// </summary>
+        /// <param name="filename">解凍するファイル名</param>
+        /// <param name="archivePath">ファイルのあるアーカイブへのパス</param>
+        /// <returns>解凍したファイルパス</returns>
+        public static string Extract(string filename, string archivePath)
+        {
+            string extractPath = Path.Combine(Path.GetDirectoryName(archivePath), filename);
+            using (var stream = new FileStream(extractPath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                Extract(filename, archivePath, stream);
+            return extractPath;
+        }
+
+        /// <summary>
+        /// アーカイブ内から指定ファイルを解凍する
+        /// </summary>
+        /// <param name="filename">解凍するファイル名</param>
+        /// <param name="archivePath">ファイルのあるアーカイブへのパス</param>
+        /// <param name="stream">解凍先ストリーム</param>
+        public static void Extract(string filename, string archivePath, Stream stream)
+        {
+            using (var extractor = new SevenZipExtractor(archivePath))
+                extractor.ExtractFile(filename, stream);
         }
     }
 }
