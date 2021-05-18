@@ -56,8 +56,9 @@ namespace CommitPMX
             if (!existLogFile)
                 logTexts.Add("\"Date\",\"Message\",\"Filename\",\"Archive Format\",\"Saved Path\"");
             string format = saveSucceed ? Compressor.ArchiveFormat.ToString() : "Compression Failed";
-            string SavingPath = saveSucceed ? ArchivePath + Compressor.ExtString : DirectoryToCommit;
-            logTexts.Add($"\"{CommitTime:yyyy/MM/dd HH:mm:ss.ff}\",\"{Message.Replace("\"", "\"\"")}\",\"{Path.GetFileName(LogModelFilename)}\",\"{format}\",\"{SavingPath}\"");
+            string savedPath = saveSucceed ? ArchivePath + Compressor.ExtString
+                             : File.Exists(Path.Combine(DirectoryToCommit, Path.GetFileName(LogModelFilename))) ? DirectoryToCommit : "Unknown";
+            logTexts.Add($"\"{CommitTime:yyyy/MM/dd HH:mm:ss.ff}\",\"{Message.Replace("\"", "\"\"")}\",\"{Path.GetFileName(LogModelFilename)}\",\"{format}\",\"{savedPath}\"");
 
             File.AppendAllLines(pathOfLog, logTexts);
         }
@@ -93,7 +94,7 @@ namespace CommitPMX
                 exception.HasValue = true;
                 System.Windows.Forms.MessageBox.Show($"アーカイブへの追加に失敗しました。{Environment.NewLine}{ex.Message}", "コミットの失敗", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
 
-                isSuccess = true;
+                isSuccess = false;
             }
 
             try
