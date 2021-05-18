@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+using PEPExtensions;
 using PEPlugin;
+using PEPlugin.Pmx;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -36,13 +38,61 @@ namespace CommitPMX
             dataGridViewCommits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
 
+        private static IPXPmx ExtractPmx(in CommitLog selectedLog)
+        {
+            var extractedPmx = PEStaticBuilder.Pmx.Pmx();
+            var path = SevenZipCompressor.Extract(selectedLog.Filename, selectedLog.SavedPath);
+            extractedPmx.FromFile(path);
+
+            return extractedPmx;
+        }
+
         private void buttonExtract_Click(object sender, EventArgs e)
         {
+            if (!SelectedCommitLog.HasValue)
+                return;
+            var selectedLog = SelectedCommitLog.Value;
 
+            if (selectedLog.Format == CommitLog.ArchiveFormat.None)
+                return;
+
+            try
+            {
+                ExtractPmx(in selectedLog);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            MessageBox.Show("解凍が完了しました。", "ファイルの解凍");
+            Close();
         }
 
         private void buttonOverwrite_Click(object sender, EventArgs e)
         {
+            if (!SelectedCommitLog.HasValue)
+                return;
+            var selectedLog = SelectedCommitLog.Value;
+
+            var pmx = PEStaticBuilder.Pmx.Pmx();
+
+            if (selectedLog.Format != CommitLog.ArchiveFormat.None)
+            {
+                using (var pmxStream = new MemoryStream())
+                {
+                    SevenZipCompressor.Extract(selectedLog.Filename, selectedLog.SavedPath, pmxStream);
+                    pmxStream.Position = 0;
+                    pmx.FromStream(pmxStream);
+                }
+            }
+            else
+            {
+                pmx.FromFile(Path.Combine(selectedLog.SavedPath, selectedLog.Filename));
+            }
+
+            Utility.Update(Args.Host.Connector, pmx);
+            Close();
         }
     }
 }

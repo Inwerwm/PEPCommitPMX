@@ -22,18 +22,10 @@ namespace CommitPMX
             SavedPath = savedPath;
         }
 
-        public CommitLog(DateTime date, string message, string fileName, OutArchiveFormat? format, string savedPath){
-            Date = date;
-            Message = message;
-            Filename = fileName;
-            Format = ConvertFormatEnum(format);
-            SavedPath = savedPath;
-        }
-
         public static ArchiveFormat ConvertFormatEnum(OutArchiveFormat? szFormat)
         {
             if (!szFormat.HasValue)
-                return ArchiveFormat.Unknown;
+                return ArchiveFormat.None;
 
             switch (szFormat)
             {
@@ -42,16 +34,15 @@ namespace CommitPMX
                 case OutArchiveFormat.Zip:
                     return ArchiveFormat.Zip;
                 default:
-                    return ArchiveFormat.Unknown;
+                    return ArchiveFormat.None;
             }
         }
-    }
 
-    public enum ArchiveFormat
-    {
-        Zip,
-        SevenZip,
-        Unknown
+        public enum ArchiveFormat
+        {
+            Zip,
+            SevenZip,
+            None
+        }
     }
-}
 }

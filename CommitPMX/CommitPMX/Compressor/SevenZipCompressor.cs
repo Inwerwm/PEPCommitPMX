@@ -94,5 +94,31 @@ namespace CommitPMX
                 throw;
             }
         }
+
+        /// <summary>
+        /// アーカイブ内から指定ファイルを解凍する
+        /// </summary>
+        /// <param name="filename">解凍するファイル名</param>
+        /// <param name="archivePath">ファイルのあるアーカイブへのパス</param>
+        /// <returns>解凍したファイルパス</returns>
+        public static string Extract(string filename, string archivePath)
+        {
+            string extractPath = Path.Combine(Path.GetDirectoryName(archivePath), filename);
+            using (var stream = new FileStream(extractPath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                Extract(filename, archivePath, stream);
+            return extractPath;
+        }
+
+        /// <summary>
+        /// アーカイブ内から指定ファイルを解凍する
+        /// </summary>
+        /// <param name="filename">解凍するファイル名</param>
+        /// <param name="archivePath">ファイルのあるアーカイブへのパス</param>
+        /// <param name="stream">解凍先ストリーム</param>
+        public static void Extract(string filename, string archivePath, Stream stream)
+        {
+            using (var extractor = new SevenZipExtractor(archivePath))
+                extractor.ExtractFile(filename, stream);
+        }
     }
 }
