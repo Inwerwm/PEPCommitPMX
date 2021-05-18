@@ -20,6 +20,7 @@ namespace CommitPMX
             {
                 Properties.Settings.Default.ArchiveFormat = value;
                 Properties.Settings.Default.Save();
+                Reload();
                 SyncFormatSelection();
             }
         }
