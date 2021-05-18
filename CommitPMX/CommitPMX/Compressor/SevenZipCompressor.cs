@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SevenZip;
+using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SevenZip;
 
 namespace CommitPMX
 {
@@ -71,16 +67,31 @@ namespace CommitPMX
         public void ReCompress(string archivePath)
         {
             string archivePathWithExt = archivePath + ExtString;
-            var archiveDir = System.IO.Path.GetDirectoryName(archivePathWithExt);
-            var extractDir = System.IO.Path.Combine(archiveDir, "tmp");
+            var archiveDir = Path.GetDirectoryName(archivePathWithExt);
+            var extractDir = Path.Combine(archiveDir, ".extracted_archive_tmp");
 
-            var extractor = new SevenZipExtractor(archivePathWithExt);
-            extractor.ExtractArchive(extractDir);
+            try
+            {
+                if (Directory.Exists(extractDir))
+                {
+                    Directory.Delete(extractDir, true);
+                }
 
-            Compressor.CompressionMode = CompressionMode.Create;
-            Compressor.CompressDirectory(extractDir, archivePathWithExt);
+                using (var extractor = new SevenZipExtractor(archivePathWithExt))
+                    extractor.ExtractArchive(extractDir);
 
-            System.IO.Directory.Delete(extractDir, true);
+                var dirInfo = new DirectoryInfo(extractDir);
+                dirInfo.Attributes |= FileAttributes.Hidden;
+
+                Compressor.CompressionMode = CompressionMode.Create;
+                Compressor.CompressDirectory(extractDir, archivePathWithExt);
+
+                Directory.Delete(extractDir, true);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }
