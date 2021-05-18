@@ -11,15 +11,10 @@ namespace CommitPMX
     [JsonObject]
     struct CommitLog
     {
-        [JsonProperty("date")]
         public DateTime Date { get; }
-        [JsonProperty("message")]
         public string Message { get; }
-        [JsonProperty("filename")]
         public string Filename { get; }
-        [JsonProperty("archiveFormat")]
         public string ArchiveFormat { get; }
-        [JsonProperty("savedPath")]
         public string SavedPath { get; }
 
         public CommitLog(DateTime date, string message, string fileName, string archiveFormat, string savedPath)

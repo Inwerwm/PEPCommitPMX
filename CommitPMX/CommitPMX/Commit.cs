@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using PEPlugin.Form;
 using PEPlugin.Pmx;
 using System;
@@ -12,7 +13,7 @@ namespace CommitPMX
     class Commit
     {
         public static string ArchiveName => "archive";
-        public static string LogFileName => "CommitLog.json";
+        public static string LogFileName => "CommitLog.txt";
 
         public IPXPmx Model { get; }
         public DateTime CommitTime { get; }
@@ -56,9 +57,12 @@ namespace CommitPMX
             string format = saveSucceed ? Compressor.ArchiveFormat.ToString() : "Compression Failed";
             string savedPath = saveSucceed ? ArchivePath + Compressor.ExtString
                              : File.Exists(Path.Combine(DirectoryToCommit, Path.GetFileName(LogModelFilename))) ? DirectoryToCommit : "Unknown";
+            
             var log = new CommitLog(CommitTime, Message, Path.GetFileName(LogModelFilename), format, savedPath);
-
-            var jsonLog = JsonConvert.SerializeObject(log, Formatting.Indented);
+            var jsonLog = JsonConvert.SerializeObject(log, Formatting.None, new JsonSerializerSettings()
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            });
             File.AppendAllText(pathOfLog, jsonLog + Environment.NewLine);
         }
 
