@@ -5,7 +5,7 @@ using System;
 namespace CommitPMX
 {
     [JsonObject]
-    struct CommitLog
+    public struct CommitLog
     {
         public DateTime Date { get; }
         public string Message { get; }
