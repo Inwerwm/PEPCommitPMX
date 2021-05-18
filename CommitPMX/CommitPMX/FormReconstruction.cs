@@ -30,8 +30,8 @@ namespace CommitPMX
         {
             var commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
 
-            var logs = File.ReadLines(Path.Combine(commitDir, Commit.LogFileName)).Select(JsonConvert.DeserializeObject<CommitLog>);
-            dataGridViewCommits.DataSource = logs.ToArray();
+            var logFile = File.ReadLines(Path.Combine(commitDir, Commit.LogFileName));
+            dataGridViewCommits.DataSource = logFile.Select(JsonConvert.DeserializeObject<CommitLog>).ToArray();
         }
     }
 }
