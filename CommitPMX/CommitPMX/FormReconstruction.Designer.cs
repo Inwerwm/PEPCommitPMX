@@ -65,6 +65,7 @@ namespace CommitPMX
             this.buttonExtract.TabIndex = 0;
             this.buttonExtract.Text = "ログフォルダに解凍";
             this.buttonExtract.UseVisualStyleBackColor = true;
+            this.buttonExtract.Click += new System.EventHandler(this.buttonExtract_Click);
             // 
             // buttonOverwrite
             // 
@@ -75,6 +76,7 @@ namespace CommitPMX
             this.buttonOverwrite.TabIndex = 1;
             this.buttonOverwrite.Text = "現在状態に上書き";
             this.buttonOverwrite.UseVisualStyleBackColor = true;
+            this.buttonOverwrite.Click += new System.EventHandler(this.buttonOverwrite_Click);
             // 
             // dataGridViewCommits
             // 
@@ -84,8 +86,10 @@ namespace CommitPMX
             this.tableLayoutPanel1.SetColumnSpan(this.dataGridViewCommits, 2);
             this.dataGridViewCommits.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridViewCommits.Location = new System.Drawing.Point(3, 3);
+            this.dataGridViewCommits.MultiSelect = false;
             this.dataGridViewCommits.Name = "dataGridViewCommits";
             this.dataGridViewCommits.RowTemplate.Height = 21;
+            this.dataGridViewCommits.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewCommits.Size = new System.Drawing.Size(935, 471);
             this.dataGridViewCommits.TabIndex = 2;
             // 

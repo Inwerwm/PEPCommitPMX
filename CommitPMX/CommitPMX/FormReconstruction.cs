@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using PEPlugin;
 using System;
 using System.Collections.Generic;
@@ -36,6 +36,13 @@ namespace CommitPMX
             dataGridViewCommits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
 
+        private void buttonExtract_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonOverwrite_Click(object sender, EventArgs e)
+        {
         }
     }
 }
