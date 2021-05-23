@@ -3,13 +3,9 @@ using PEPExtensions;
 using PEPlugin;
 using PEPlugin.Pmx;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -114,15 +110,25 @@ namespace CommitPMX
                 return;
 
             ToggleButtons(false);
-            await Task.Run(() =>
+            try
             {
-                if (selectedLog.Format == CommitLog.ArchiveFormat.None)
-                    File.Delete(Path.Combine(selectedLog.SavedPath, selectedLog.Filename));
-                else
-                    Compressor.Remove(selectedLog.Filename, selectedLog.SavedPath);
-            });
-            RemoveLog(selectedLog);
-            ToggleButtons(true);
+                await Task.Run(() =>
+                {
+                    if (selectedLog.Format == CommitLog.ArchiveFormat.None)
+                        File.Delete(Path.Combine(selectedLog.SavedPath, selectedLog.Filename));
+                    else
+                        Compressor.Remove(selectedLog.Filename, selectedLog.SavedPath);
+                });
+                RemoveLog(selectedLog);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                ToggleButtons(true);
+            }
         }
 
         private void RemoveLog(CommitLog targetLog)
