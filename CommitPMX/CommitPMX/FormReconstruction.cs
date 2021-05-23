@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using PEPExtensions;
 using PEPlugin;
 using PEPlugin.Pmx;
@@ -136,8 +136,15 @@ namespace CommitPMX
             var logs = dataGridViewCommits.DataSource as CommitLog[];
             var removedLogs = logs.Where(log => !log.Equals(targetLog)).ToArray();
             dataGridViewCommits.DataSource = removedLogs;
-            var logTexts = removedLogs.Select(log => JsonConvert.SerializeObject(log, Formatting.None)).Reverse();
-            File.WriteAllText(LogFilePath, logTexts.Aggregate((sum, elm) => sum + Environment.NewLine + elm) + Environment.NewLine);
+            if (removedLogs.Any())
+            {
+                var logTexts = removedLogs.Select(log => JsonConvert.SerializeObject(log, Formatting.None)).Reverse();
+                File.WriteAllText(LogFilePath, logTexts.Aggregate((sum, elm) => sum + Environment.NewLine + elm) + Environment.NewLine);
+            }
+            else
+            {
+                File.Delete(LogFilePath);
+            }
         }
     }
 }
