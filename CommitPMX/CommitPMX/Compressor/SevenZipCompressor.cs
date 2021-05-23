@@ -1,7 +1,9 @@
 ﻿using SevenZip;
 using SevenZip.EventArguments;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace CommitPMX
 {
@@ -160,6 +162,25 @@ namespace CommitPMX
         {
             using (var extractor = new SevenZipExtractor(archivePath))
                 extractor.ExtractFile(filename, stream);
+        }
+
+        /// <summary>
+        /// アーカイブ内から指定ファイルを削除する
+        /// </summary>
+        /// <param name="filename">削除するファイル名</param>
+        /// <param name="archivePath">ファイルのあるアーカイブへのパス</param>
+        public void Remove(string filename, string archivePath)
+        {
+            Dictionary<int, string> filesToDelete;
+            using (var extractor = new SevenZipExtractor(archivePath))
+                filesToDelete = extractor.ArchiveFileData.Where(file => file.FileName == filename)
+                                                  .ToDictionary(file => file.Index, _ => (string)null);
+
+            if (!filesToDelete.Any())
+                return;
+
+            var compressor = CreateCompressor();
+            compressor.ModifyArchive(archivePath, filesToDelete);
         }
     }
 }
