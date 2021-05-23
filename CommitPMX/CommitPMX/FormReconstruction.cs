@@ -15,7 +15,7 @@ namespace CommitPMX
     {
         IPERunArgs Args { get; }
         SevenZipCompressor Compressor { get; }
-        CommitLog? SelectedCommitLog => (CommitLog)dataGridViewCommits.SelectedRows[0].DataBoundItem;
+        CommitLog? SelectedCommitLog => dataGridViewCommits.RowCount > 0 ? (CommitLog)dataGridViewCommits.SelectedRows[0].DataBoundItem : (CommitLog?)null;
         private string LogFilePath { get; set; }
 
         public FormReconstruction(IPERunArgs args, SevenZipCompressor compressor)
