@@ -1,6 +1,7 @@
 ﻿using PEPlugin;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CommitPMX
@@ -35,6 +36,22 @@ namespace CommitPMX
             labelMessage.Text = $"メッセージ({MESSAGE_LIMIT}文字以内)  Ctrl+Enterでコミット";
             DefaultDescription = textBoxDescription.Text;
             Reload();
+        }
+
+        private void SetControlesEnable(bool enable, Button runningButton)
+        {
+            textBoxMessage.ReadOnly = !enable;
+            buttonCommit.Enabled = enable && !string.IsNullOrEmpty(textBoxMessage.Text);
+            buttonReCompress.Enabled = enable;
+            buttonReconstruction.Enabled = enable;
+
+            if (runningButton is null)
+                return;
+
+            const string progressText = "中...";
+            runningButton.Text = enable ?
+                                 runningButton.Text.Replace(progressText, "") :
+                                 runningButton.Text + progressText;
         }
 
         internal void Reload()
@@ -99,10 +116,15 @@ namespace CommitPMX
             textBoxMessage.SelectionStart = Math.Max(selectionTmp, 0);
         }
 
-        private void buttonCommit_Click(object sender, EventArgs e)
+        private async void buttonCommit_Click(object sender, EventArgs e)
         {
-            new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxMessage.Text, Compressor).Invoke();
+            SetControlesEnable(false, sender as Button);
+            var commitTask = Task.Run(() =>
+                new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxMessage.Text, Compressor).Invoke()
+            );
+            await commitTask;
             textBoxMessage.Clear();
+            SetControlesEnable(true, sender as Button);
         }
 
         private void textBoxMessage_KeyPress(object sender, KeyPressEventArgs e)
@@ -117,49 +139,56 @@ namespace CommitPMX
             Hide();
         }
 
-        private void buttonReCompress_Click(object sender, EventArgs e)
+        private async void buttonReCompress_Click(object sender, EventArgs e)
         {
-            string commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
-            string archivePath = Path.Combine(commitDir, Commit.ArchiveName);
-            (string Value, bool HasValue) exception = (null, false);
-            try
+            SetControlesEnable(false, sender as Button);
+            var recompTask = Task.Run(() =>
             {
-                // 例外が1度でも発生したあとに圧縮しようとするとメモリエラーが発生する
-                // インスタンスを作り直すと起きないので暫定対応
-                Reload();
+                string commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
+                string archivePath = Path.Combine(commitDir, Commit.ArchiveName);
+                (string Value, bool HasValue) exception = (null, false);
+                try
+                {
+                    // 例外が1度でも発生したあとに圧縮しようとするとメモリエラーが発生する
+                    // インスタンスを作り直すと起きないので暫定対応
+                    Reload();
 
-                if (File.Exists(archivePath + Compressor.ExtString))
-                {
-                    Compressor.ReCompress(archivePath);
+                    if (File.Exists(archivePath + Compressor.ExtString))
+                    {
+                        Compressor.ReCompress(archivePath);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"アーカイブファイルが見つかりませんでした。{Environment.NewLine}期待されたパス:{archivePath + Compressor.ExtString}");
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    MessageBox.Show($"アーカイブファイルが見つかりませんでした。{Environment.NewLine}期待されたパス:{archivePath + Compressor.ExtString}");
+                    exception.Value = $"========================================{Environment.NewLine}" +
+                                      $"{DateTime.Now:G}{Environment.NewLine}" +
+                                      $"{ex.GetType()}{Environment.NewLine}" +
+                                      $"'{archivePath + Compressor.ExtString}'を再圧縮するときに例外が発生しました。{Environment.NewLine}" +
+                                      $"{ex.Message}{Environment.NewLine}" +
+                                      $"{ex.StackTrace}{Environment.NewLine}";
+                    exception.HasValue = true;
+                    MessageBox.Show($"アーカイブの再圧縮に失敗しました。{Environment.NewLine}{ex.Message}", "再圧縮の失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-            }
-            catch (Exception ex)
-            {
-                exception.Value = $"========================================{Environment.NewLine}" +
-                                  $"{DateTime.Now:G}{Environment.NewLine}" +
-                                  $"{ex.GetType()}{Environment.NewLine}" +
-                                  $"'{archivePath + Compressor.ExtString}'を再圧縮するときに例外が発生しました。{Environment.NewLine}" +
-                                  $"{ex.Message}{Environment.NewLine}" +
-                                  $"{ex.StackTrace}{Environment.NewLine}";
-                exception.HasValue = true;
-                MessageBox.Show($"アーカイブの再圧縮に失敗しました。{Environment.NewLine}{ex.Message}", "再圧縮の失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
 
-            try
-            {
-                if (exception.HasValue)
+                try
                 {
-                    File.AppendAllText(Path.Combine(commitDir, "Exceptions.log"), exception.Value);
+                    if (exception.HasValue)
+                    {
+                        File.AppendAllText(Path.Combine(commitDir, "Exceptions.log"), exception.Value);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"例外履歴の書込に失敗しました。{Environment.NewLine}{ex.Message}", "例外履歴書込の失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"例外履歴の書込に失敗しました。{Environment.NewLine}{ex.Message}", "例外履歴書込の失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            });
+
+            await recompTask;
+            SetControlesEnable(true, sender as Button);
         }
 
         private void radioButton7z_CheckedChanged(object sender, EventArgs e)
