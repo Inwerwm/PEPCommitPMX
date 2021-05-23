@@ -40,10 +40,6 @@
     <Reference Include="PEPlugin">
       <HintPath>..\..\..\..\PmxEditor\Lib\PEPlugin\PEPlugin.dll</HintPath>
     </Reference>
-    <Reference Include="SevenZipSharp, Version=0.64.0.0, Culture=neutral, PublicKeyToken=c8ff6ba0184838bb, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Users\owner\source\repos\SevenZipSharp\Stage\Debug\net45\SevenZipSharp.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -102,6 +98,11 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Users\owner\source\repos\SevenZipSharp\SevenZip\SevenZip.csproj">
+      <Project>{c6d8fe0f-d1f9-43e2-a70c-62a37ddce940}</Project>
+      <Name>SevenZip</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
