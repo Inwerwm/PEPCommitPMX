@@ -33,18 +33,21 @@ namespace CommitPMX
             this.buttonExtract = new System.Windows.Forms.Button();
             this.buttonOverwrite = new System.Windows.Forms.Button();
             this.dataGridViewCommits = new System.Windows.Forms.DataGridView();
+            this.buttonRemove = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCommits)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Controls.Add(this.buttonExtract, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.buttonOverwrite, 1, 1);
+            this.tableLayoutPanel1.ColumnCount = 3;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.Controls.Add(this.buttonExtract, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.buttonOverwrite, 2, 1);
             this.tableLayoutPanel1.Controls.Add(this.dataGridViewCommits, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.buttonRemove, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -58,10 +61,10 @@ namespace CommitPMX
             // buttonExtract
             // 
             this.buttonExtract.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buttonExtract.Location = new System.Drawing.Point(4, 482);
+            this.buttonExtract.Location = new System.Drawing.Point(317, 482);
             this.buttonExtract.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonExtract.Name = "buttonExtract";
-            this.buttonExtract.Size = new System.Drawing.Size(462, 60);
+            this.buttonExtract.Size = new System.Drawing.Size(305, 60);
             this.buttonExtract.TabIndex = 0;
             this.buttonExtract.Text = "ログフォルダに解凍";
             this.buttonExtract.UseVisualStyleBackColor = true;
@@ -70,9 +73,9 @@ namespace CommitPMX
             // buttonOverwrite
             // 
             this.buttonOverwrite.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buttonOverwrite.Location = new System.Drawing.Point(473, 480);
+            this.buttonOverwrite.Location = new System.Drawing.Point(629, 480);
             this.buttonOverwrite.Name = "buttonOverwrite";
-            this.buttonOverwrite.Size = new System.Drawing.Size(465, 64);
+            this.buttonOverwrite.Size = new System.Drawing.Size(309, 64);
             this.buttonOverwrite.TabIndex = 1;
             this.buttonOverwrite.Text = "現在状態に上書き";
             this.buttonOverwrite.UseVisualStyleBackColor = true;
@@ -83,7 +86,7 @@ namespace CommitPMX
             this.dataGridViewCommits.AllowUserToAddRows = false;
             this.dataGridViewCommits.AllowUserToDeleteRows = false;
             this.dataGridViewCommits.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.tableLayoutPanel1.SetColumnSpan(this.dataGridViewCommits, 2);
+            this.tableLayoutPanel1.SetColumnSpan(this.dataGridViewCommits, 3);
             this.dataGridViewCommits.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridViewCommits.Location = new System.Drawing.Point(3, 3);
             this.dataGridViewCommits.MultiSelect = false;
@@ -92,6 +95,17 @@ namespace CommitPMX
             this.dataGridViewCommits.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewCommits.Size = new System.Drawing.Size(935, 471);
             this.dataGridViewCommits.TabIndex = 2;
+            // 
+            // buttonRemove
+            // 
+            this.buttonRemove.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buttonRemove.Location = new System.Drawing.Point(3, 480);
+            this.buttonRemove.Name = "buttonRemove";
+            this.buttonRemove.Size = new System.Drawing.Size(307, 64);
+            this.buttonRemove.TabIndex = 3;
+            this.buttonRemove.Text = "削除";
+            this.buttonRemove.UseVisualStyleBackColor = true;
+            this.buttonRemove.Click += new System.EventHandler(this.buttonRemove_Click);
             // 
             // FormReconstruction
             // 
@@ -119,5 +133,6 @@ namespace CommitPMX
         private System.Windows.Forms.Button buttonExtract;
         private System.Windows.Forms.Button buttonOverwrite;
         private System.Windows.Forms.DataGridView dataGridViewCommits;
+        private System.Windows.Forms.Button buttonRemove;
     }
 }

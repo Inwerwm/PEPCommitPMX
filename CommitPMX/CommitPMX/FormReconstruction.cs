@@ -94,5 +94,17 @@ namespace CommitPMX
             Utility.Update(Args.Host.Connector, pmx);
             Close();
         }
+
+        private void buttonRemove_Click(object sender, EventArgs e)
+        {
+            if (!SelectedCommitLog.HasValue)
+                return;
+            var selectedLog = SelectedCommitLog.Value;
+
+            if (MessageBox.Show($"{selectedLog.Filename}を削除します。{Environment.NewLine}よろしいですか?", "履歴の削除", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
+                return;
+
+            
+        }
     }
 }
