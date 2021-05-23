@@ -30,6 +30,13 @@ namespace CommitPMX
             Compressor = compressor;
         }
 
+        private void ToggleButtons(bool enable)
+        {
+            buttonExtract.Enabled = enable;
+            buttonOverwrite.Enabled = enable;
+            buttonRemove.Enabled = enable;
+        }
+
         private void FormReconstruction_Load(object sender, EventArgs e)
         {
             var commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
@@ -97,16 +104,34 @@ namespace CommitPMX
             Close();
         }
 
-        private void buttonRemove_Click(object sender, EventArgs e)
+        private async void buttonRemove_Click(object sender, EventArgs e)
         {
             if (!SelectedCommitLog.HasValue)
                 return;
             var selectedLog = SelectedCommitLog.Value;
 
-            if (MessageBox.Show($"{selectedLog.Filename}を削除します。{Environment.NewLine}よろしいですか?", "履歴の削除", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
+            if (MessageBox.Show($"{selectedLog.Filename}を削除します。{Environment.NewLine}削除されたファイルは復元できません。{Environment.NewLine}よろしいですか?", "履歴の削除", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
                 return;
 
-            
+            ToggleButtons(false);
+            await Task.Run(() =>
+            {
+                if (selectedLog.Format == CommitLog.ArchiveFormat.None)
+                    File.Delete(Path.Combine(selectedLog.SavedPath, selectedLog.Filename));
+                else
+                    Compressor.Remove(selectedLog.Filename, selectedLog.SavedPath);
+            });
+            RemoveLog(selectedLog);
+            ToggleButtons(true);
+        }
+
+        private void RemoveLog(CommitLog targetLog)
+        {
+            var logs = dataGridViewCommits.DataSource as CommitLog[];
+            var removedLogs = logs.Where(log => !log.Equals(targetLog)).ToArray();
+            dataGridViewCommits.DataSource = removedLogs;
+            var logTexts = removedLogs.Select(log => JsonConvert.SerializeObject(log, Formatting.None)).Reverse();
+            File.WriteAllText(LogFilePath, logTexts.Aggregate((sum, elm) => sum + Environment.NewLine + elm) + Environment.NewLine);
         }
     }
 }
