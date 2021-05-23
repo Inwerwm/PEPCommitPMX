@@ -24,6 +24,9 @@ namespace CommitPMX
 
             Args = args;
             Compressor = compressor;
+
+            var commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
+            LogFilePath = Path.Combine(commitDir, Commit.LogFileName);
         }
 
         private void ToggleButtons(bool enable)
@@ -35,8 +38,12 @@ namespace CommitPMX
 
         private void FormReconstruction_Load(object sender, EventArgs e)
         {
-            var commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
-            LogFilePath = Path.Combine(commitDir, Commit.LogFileName);
+            if (!File.Exists(LogFilePath))
+            {
+                MessageBox.Show("履歴が見つかりませんでした。", "復元ファイルの選択", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Close();
+                return;
+            }
 
             var logLines = File.ReadLines(LogFilePath);
             dataGridViewCommits.DataSource = logLines.Select(JsonConvert.DeserializeObject<CommitLog>).Reverse().ToArray();
