@@ -46,10 +46,23 @@ namespace CommitPMX
             // 既存の場合何もおこらない
             Directory.CreateDirectory(DirectoryToCommit);
 
-            WriteModel();
+            var saveSucceed = WriteModel();
+            WriteLog(saveSucceed);
         }
 
-        private void WriteModel()
+        private void WriteLog(bool saveSucceed)
+        {
+            string pathOfLog = Path.Combine(DirectoryToCommit, LogFileName);
+
+            SevenZip.OutArchiveFormat? format = saveSucceed ? Compressor.ArchiveFormat : (SevenZip.OutArchiveFormat?)null;
+            string savedPath = saveSucceed ? ArchivePath + Compressor.ExtString
+                             : File.Exists(Path.Combine(DirectoryToCommit, Path.GetFileName(LogModelFilename))) ? DirectoryToCommit : "Unknown";
+            var log = new CommitLog(CommitTime, Message, Path.GetFileName(LogModelFilename), CommitLog.ConvertFormatEnum(format), savedPath);
+            var jsonLog = JsonConvert.SerializeObject(log, Formatting.None);
+            File.AppendAllText(pathOfLog, jsonLog + Environment.NewLine);
+        }
+
+        private bool WriteModel()
         {
             bool isSuccess = true;
 
@@ -95,21 +108,7 @@ namespace CommitPMX
                 System.Windows.Forms.MessageBox.Show($"例外履歴の書込に失敗しました。{Environment.NewLine}{ex.Message}", "例外履歴書込の失敗", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
             }
 
-            WriteLog(isSuccess);
-
-
-        }
-
-        private void WriteLog(bool saveSucceed)
-        {
-            string pathOfLog = Path.Combine(DirectoryToCommit, LogFileName);
-
-            SevenZip.OutArchiveFormat? format = saveSucceed ? Compressor.ArchiveFormat : (SevenZip.OutArchiveFormat?)null;
-            string savedPath = saveSucceed ? ArchivePath + Compressor.ExtString
-                             : File.Exists(Path.Combine(DirectoryToCommit, Path.GetFileName(LogModelFilename))) ? DirectoryToCommit : "Unknown";
-            var log = new CommitLog(CommitTime, Message, Path.GetFileName(LogModelFilename), CommitLog.ConvertFormatEnum(format), savedPath);
-            var jsonLog = JsonConvert.SerializeObject(log, Formatting.None);
-            File.AppendAllText(pathOfLog, jsonLog + Environment.NewLine);
+            return isSuccess;
         }
     }
 }
