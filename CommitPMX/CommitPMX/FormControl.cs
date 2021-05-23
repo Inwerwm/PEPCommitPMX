@@ -10,7 +10,7 @@ namespace CommitPMX
     {
         // gitのメッセージは50文字以内推奨らしいので
         private readonly int MESSAGE_LIMIT = 50;
-        
+
         IPERunArgs Args { get; }
 
         SevenZipCompressor Compressor { get; set; }
@@ -100,7 +100,7 @@ namespace CommitPMX
             // それを戻すためにカーソル位置を保存して最後に戻す処理を行う
             var selectionTmp = textBoxMessage.SelectionStart;
 
-            buttonCommit.Enabled = !string.IsNullOrEmpty(textBoxMessage.Text);
+            buttonCommit.Enabled = !(string.IsNullOrEmpty(textBoxMessage.Text) || textBoxMessage.ReadOnly);
 
             if (textBoxMessage.Text.Length > MESSAGE_LIMIT)
                 textBoxMessage.Text = textBoxMessage.Text.Substring(0, MESSAGE_LIMIT);
@@ -141,6 +141,7 @@ namespace CommitPMX
 
         private async void buttonReCompress_Click(object sender, EventArgs e)
         {
+            var msgTmp = textBoxMessage.Text;
             SetControlesEnable(false, sender as Button);
             var recompTask = Task.Run(() =>
             {
@@ -155,7 +156,15 @@ namespace CommitPMX
 
                     if (File.Exists(archivePath + Compressor.ExtString))
                     {
-                        Compressor.ReCompress(archivePath);
+                        Compressor.ReCompress(
+                            archivePath,
+                            (_, dpe, state) =>
+                                {
+                                    var completedRatio = (float)dpe.AmountCompleted / dpe.TotalAmount;
+                                    textBoxMessage.Text = $"{state}: {completedRatio * 100: #.#}%";
+                                },
+                            (state) => textBoxMessage.Text = state
+                        );
                     }
                     else
                     {
@@ -188,6 +197,7 @@ namespace CommitPMX
             });
 
             await recompTask;
+            textBoxMessage.Text = msgTmp;
             SetControlesEnable(true, sender as Button);
         }
 

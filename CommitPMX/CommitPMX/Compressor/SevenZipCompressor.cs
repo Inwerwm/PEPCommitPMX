@@ -1,4 +1,5 @@
 ﻿using SevenZip;
+using SevenZip.EventArguments;
 using System;
 using System.IO;
 
@@ -93,16 +94,16 @@ namespace CommitPMX
         /// 1つずつ追加されたアーカイブをまとめて圧縮することで圧縮率が向上する
         /// </summary>
         /// <param name="archivePath">対象アーカイブへのパス アーカイブ名に拡張子はいらない</param>
-        /// <param name="progressHandler">プログレス表示用メソッド</param>
-        public void ReCompress(string archivePath, Action<object, ProgressEventArgs> progressHandler = null)
+        /// <param name="detailedProgressHandler">展開・圧縮進捗イベントハンドラ</param>
+        /// <param name="otherProgressHandler">その他進捗イベントハンドラ</param>
+        public void ReCompress(
+            string archivePath,
+            Action<object, DetailedProgressEventArgs, string> detailedProgressHandler,
+            Action<string> otherProgressHandler)
         {
-            var compressor = CreateCompressor();
-
             string archivePathWithExt = archivePath + ExtString;
             var archiveDir = Path.GetDirectoryName(archivePathWithExt);
             var extractDir = Path.Combine(archiveDir, ".extracted_archive_tmp");
-            if (!(progressHandler is null))
-                compressor.Compressing += new EventHandler<ProgressEventArgs>(progressHandler);
 
             try
             {
@@ -112,18 +113,25 @@ namespace CommitPMX
                 }
 
                 using (var extractor = new SevenZipExtractor(archivePathWithExt))
+                {
+                    extractor.Progressing += new EventHandler<DetailedProgressEventArgs>((sender, e) => detailedProgressHandler(sender, e, "展開中"));
                     extractor.ExtractArchive(extractDir);
+                }
 
                 var dirInfo = new DirectoryInfo(extractDir);
                 dirInfo.Attributes |= FileAttributes.Hidden;
 
+                var compressor = CreateCompressor();
+                compressor.Progressing += new EventHandler<DetailedProgressEventArgs>((sender, e) => detailedProgressHandler(sender, e, "圧縮中"));
                 compressor.CompressionMode = CompressionMode.Create;
                 compressor.CompressDirectory(extractDir, archivePathWithExt);
 
+                otherProgressHandler("一時フォルダを削除しています。");
                 Directory.Delete(extractDir, true);
             }
             catch (Exception)
             {
+                otherProgressHandler?.Invoke("例外が発生しました。");
                 throw;
             }
         }
