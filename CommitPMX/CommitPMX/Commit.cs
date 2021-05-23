@@ -100,7 +100,7 @@ namespace CommitPMX
             {
                 if (exception.HasValue)
                 {
-                    File.AppendAllText(DirectoryToCommit + "Exceptions.log", exception.Value);
+                    File.AppendAllText(Path.Combine(DirectoryToCommit, "Exceptions.log"), exception.Value);
                 }
             }
             catch (Exception ex)

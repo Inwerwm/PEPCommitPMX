@@ -1,4 +1,5 @@
 ﻿using SevenZip;
+using SevenZip.EventArguments;
 using System;
 using System.IO;
 
@@ -6,9 +7,30 @@ namespace CommitPMX
 {
     class SevenZipCompressor : ICompressor
     {
-        private SevenZip.SevenZipCompressor Compressor { get; } = new SevenZip.SevenZipCompressor();
-        public string ExtString { get; }
-        public OutArchiveFormat ArchiveFormat => Compressor.ArchiveFormat;
+        public string ExtString
+        {
+            get
+            {
+                switch (ArchiveFormat)
+                {
+                    case OutArchiveFormat.SevenZip:
+                        return ".7z";
+                    case OutArchiveFormat.Zip:
+                        return ".zip";
+                    //case OutArchiveFormat.GZip:
+                    //    break;
+                    //case OutArchiveFormat.BZip2:
+                    //    break;
+                    //case OutArchiveFormat.Tar:
+                    //    break;
+                    //case OutArchiveFormat.XZ:
+                    //    break;
+                    default:
+                        throw new NotImplementedException($"{ArchiveFormat}方式の圧縮は未対応です。");
+                }
+            }
+        }
+        public OutArchiveFormat ArchiveFormat { get; }
 
         /// <summary>
         /// コンストラクタ
@@ -17,15 +39,21 @@ namespace CommitPMX
         /// <param name="format">現状<c>SevenZip</c>と<c>Zip</c>のみ対応</param>
         public SevenZipCompressor(string sevenZipLibraryPath, OutArchiveFormat format)
         {
-            switch (format)
+            SevenZipBase.SetLibraryPath(sevenZipLibraryPath);
+            ArchiveFormat = format;
+        }
+
+        private SevenZip.SevenZipCompressor CreateCompressor()
+        {
+            var compressor = new SevenZip.SevenZipCompressor();
+
+            switch (ArchiveFormat)
             {
                 case OutArchiveFormat.SevenZip:
-                    Compressor.CompressionMethod = CompressionMethod.Lzma2;
-                    ExtString = ".7z";
+                    compressor.CompressionMethod = CompressionMethod.Lzma2;
                     break;
                 case OutArchiveFormat.Zip:
-                    Compressor.CompressionMethod = CompressionMethod.Lzma;
-                    ExtString = ".zip";
+                    compressor.CompressionMethod = CompressionMethod.Lzma;
                     break;
                 //case OutArchiveFormat.GZip:
                 //    break;
@@ -37,22 +65,23 @@ namespace CommitPMX
                 //    break;
                 default:
                     // どうせ使わんし対応が面倒なので
-                    throw new NotImplementedException($"{format}方式の圧縮は未対応です。");
+                    throw new NotImplementedException($"{ArchiveFormat}方式の圧縮は未対応です。");
             }
+            compressor.ArchiveFormat = ArchiveFormat;
+            compressor.PreserveDirectoryRoot = false;
+            compressor.CompressionLevel = CompressionLevel.Ultra;
 
-            SevenZipBase.SetLibraryPath(sevenZipLibraryPath);
-            Compressor.ArchiveFormat = format;
-            Compressor.PreserveDirectoryRoot = false;
-            Compressor.CompressionLevel = CompressionLevel.Ultra;
+            return compressor;
         }
 
         public void AddFileToArchive(string filePath, string archivePath)
         {
+            var compressor = CreateCompressor();
             string archiveFullName = archivePath + ExtString;
             try
             {
-                Compressor.CompressionMode = File.Exists(archiveFullName) ? CompressionMode.Append : CompressionMode.Create;
-                Compressor.CompressFiles(archiveFullName, filePath);
+                compressor.CompressionMode = File.Exists(archiveFullName) ? CompressionMode.Append : CompressionMode.Create;
+                compressor.CompressFiles(archiveFullName, filePath);
             }
             catch (Exception)
             {
@@ -65,7 +94,12 @@ namespace CommitPMX
         /// 1つずつ追加されたアーカイブをまとめて圧縮することで圧縮率が向上する
         /// </summary>
         /// <param name="archivePath">対象アーカイブへのパス アーカイブ名に拡張子はいらない</param>
-        public void ReCompress(string archivePath)
+        /// <param name="detailedProgressHandler">展開・圧縮進捗イベントハンドラ</param>
+        /// <param name="otherProgressHandler">その他進捗イベントハンドラ</param>
+        public void ReCompress(
+            string archivePath,
+            Action<object, DetailedProgressEventArgs, string> detailedProgressHandler,
+            Action<string> otherProgressHandler)
         {
             string archivePathWithExt = archivePath + ExtString;
             var archiveDir = Path.GetDirectoryName(archivePathWithExt);
@@ -79,18 +113,25 @@ namespace CommitPMX
                 }
 
                 using (var extractor = new SevenZipExtractor(archivePathWithExt))
+                {
+                    extractor.Progressing += new EventHandler<DetailedProgressEventArgs>((sender, e) => detailedProgressHandler(sender, e, "展開中"));
                     extractor.ExtractArchive(extractDir);
+                }
 
                 var dirInfo = new DirectoryInfo(extractDir);
                 dirInfo.Attributes |= FileAttributes.Hidden;
 
-                Compressor.CompressionMode = CompressionMode.Create;
-                Compressor.CompressDirectory(extractDir, archivePathWithExt);
+                var compressor = CreateCompressor();
+                compressor.Progressing += new EventHandler<DetailedProgressEventArgs>((sender, e) => detailedProgressHandler(sender, e, "圧縮中"));
+                compressor.CompressionMode = CompressionMode.Create;
+                compressor.CompressDirectory(extractDir, archivePathWithExt);
 
+                otherProgressHandler("一時フォルダを削除しています。");
                 Directory.Delete(extractDir, true);
             }
             catch (Exception)
             {
+                otherProgressHandler?.Invoke("例外が発生しました。");
                 throw;
             }
         }
