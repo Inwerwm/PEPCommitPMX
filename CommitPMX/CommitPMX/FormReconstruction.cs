@@ -20,6 +20,7 @@ namespace CommitPMX
         IPERunArgs Args { get; }
         SevenZipCompressor Compressor { get; }
         CommitLog? SelectedCommitLog => (CommitLog)dataGridViewCommits.SelectedRows[0].DataBoundItem;
+        private string LogFilePath { get; set; }
 
         public FormReconstruction(IPERunArgs args, SevenZipCompressor compressor)
         {
@@ -32,9 +33,10 @@ namespace CommitPMX
         private void FormReconstruction_Load(object sender, EventArgs e)
         {
             var commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
+            LogFilePath = Path.Combine(commitDir, Commit.LogFileName);
 
-            var logFile = File.ReadLines(Path.Combine(commitDir, Commit.LogFileName));
-            dataGridViewCommits.DataSource = logFile.Select(JsonConvert.DeserializeObject<CommitLog>).Reverse().ToArray();
+            var logLines = File.ReadLines(LogFilePath);
+            dataGridViewCommits.DataSource = logLines.Select(JsonConvert.DeserializeObject<CommitLog>).Reverse().ToArray();
             dataGridViewCommits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
 
