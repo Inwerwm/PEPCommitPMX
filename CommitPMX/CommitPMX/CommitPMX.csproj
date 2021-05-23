@@ -68,6 +68,7 @@
     <Compile Include="FormReconstruction.Designer.cs">
       <DependentUpon>FormReconstruction.cs</DependentUpon>
     </Compile>
+    <Compile Include="LogData.cs" />
     <Compile Include="PluginMain.cs" />
     <Compile Include="FormControl.cs">
       <SubType>Form</SubType>
