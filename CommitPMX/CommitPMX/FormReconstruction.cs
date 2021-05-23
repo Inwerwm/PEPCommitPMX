@@ -3,13 +3,9 @@ using PEPExtensions;
 using PEPlugin;
 using PEPlugin.Pmx;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -19,7 +15,8 @@ namespace CommitPMX
     {
         IPERunArgs Args { get; }
         SevenZipCompressor Compressor { get; }
-        CommitLog? SelectedCommitLog => (CommitLog)dataGridViewCommits.SelectedRows[0].DataBoundItem;
+        CommitLog? SelectedCommitLog => dataGridViewCommits.RowCount > 0 ? (CommitLog)dataGridViewCommits.SelectedRows[0].DataBoundItem : (CommitLog?)null;
+        private string LogFilePath { get; set; }
 
         public FormReconstruction(IPERunArgs args, SevenZipCompressor compressor)
         {
@@ -27,14 +24,29 @@ namespace CommitPMX
 
             Args = args;
             Compressor = compressor;
+
+            var commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
+            LogFilePath = Path.Combine(commitDir, Commit.LogFileName);
+        }
+
+        private void ToggleButtons(bool enable)
+        {
+            buttonExtract.Enabled = enable;
+            buttonOverwrite.Enabled = enable;
+            buttonRemove.Enabled = enable;
         }
 
         private void FormReconstruction_Load(object sender, EventArgs e)
         {
-            var commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
+            if (!File.Exists(LogFilePath))
+            {
+                MessageBox.Show("履歴が見つかりませんでした。", "復元ファイルの選択", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Close();
+                return;
+            }
 
-            var logFile = File.ReadLines(Path.Combine(commitDir, Commit.LogFileName));
-            dataGridViewCommits.DataSource = logFile.Select(JsonConvert.DeserializeObject<CommitLog>).Reverse().ToArray();
+            var logLines = File.ReadLines(LogFilePath);
+            dataGridViewCommits.DataSource = logLines.Select(JsonConvert.DeserializeObject<CommitLog>).Reverse().ToArray();
             dataGridViewCommits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
 
@@ -93,6 +105,53 @@ namespace CommitPMX
 
             Utility.Update(Args.Host.Connector, pmx);
             Close();
+        }
+
+        private async void buttonRemove_Click(object sender, EventArgs e)
+        {
+            if (!SelectedCommitLog.HasValue)
+                return;
+            var selectedLog = SelectedCommitLog.Value;
+
+            if (MessageBox.Show($"{selectedLog.Filename}を削除します。{Environment.NewLine}削除されたファイルは復元できません。{Environment.NewLine}よろしいですか?", "履歴の削除", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
+                return;
+
+            ToggleButtons(false);
+            try
+            {
+                await Task.Run(() =>
+                {
+                    if (selectedLog.Format == CommitLog.ArchiveFormat.None)
+                        File.Delete(Path.Combine(selectedLog.SavedPath, selectedLog.Filename));
+                    else
+                        Compressor.Remove(selectedLog.Filename, selectedLog.SavedPath);
+                });
+                RemoveLog(selectedLog);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"履歴の削除に失敗しました。{Environment.NewLine}{ex.Message}", "履歴の削除", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                ToggleButtons(true);
+            }
+        }
+
+        private void RemoveLog(CommitLog targetLog)
+        {
+            var logs = dataGridViewCommits.DataSource as CommitLog[];
+            var removedLogs = logs.Where(log => !log.Equals(targetLog)).ToArray();
+            dataGridViewCommits.DataSource = removedLogs;
+            if (removedLogs.Any())
+            {
+                var logTexts = removedLogs.Select(log => JsonConvert.SerializeObject(log, Formatting.None)).Reverse();
+                File.WriteAllText(LogFilePath, logTexts.Aggregate((sum, elm) => sum + Environment.NewLine + elm) + Environment.NewLine);
+            }
+            else
+            {
+                File.Delete(LogFilePath);
+            }
         }
     }
 }
