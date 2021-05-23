@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using PEPExtensions;
 using PEPlugin;
 using PEPlugin.Pmx;
@@ -121,9 +121,9 @@ namespace CommitPMX
                 });
                 RemoveLog(selectedLog);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                MessageBox.Show($"履歴の削除に失敗しました。{Environment.NewLine}{ex.Message}", "履歴の削除", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
