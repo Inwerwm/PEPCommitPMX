@@ -124,18 +124,12 @@ namespace CommitPMX
 
             ToggleButtons(false);
 
-            try
-            {
-                await Task.Run(() => LogArchive.Remove(selectedLog));
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"履歴の削除に失敗しました。{Environment.NewLine}{ex.Message}", "履歴の削除", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                ToggleButtons(true);
-            }
+            var remove = Task.Run(() => LogArchive.Remove(selectedLog));
+            await remove.InvokeAsyncWithExportException(
+                LogArchive.CommitDirectory,
+                "履歴の削除に失敗しました。",
+                () => ToggleButtons(true)
+            );
 
             LoadLogs();
         }
