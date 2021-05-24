@@ -27,7 +27,7 @@ namespace CommitPMX
             {
                 return File.Exists(LogFilePath) ?
                        File.ReadLines(LogFilePath).Select(CommitLog.FromJson) :
-                       new List<CommitLog>();
+                       new CommitLog[0];
             }
             set
             {
