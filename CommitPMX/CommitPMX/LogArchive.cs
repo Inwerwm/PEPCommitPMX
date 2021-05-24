@@ -57,6 +57,8 @@ namespace CommitPMX
         {
             CommitDirectory = BuildCommitDirectryPath(modelPath);
             Compressor = compressor;
+
+            Directory.CreateDirectory(CommitDirectory);
         }
 
         private void AppendToJsonLog(CommitLog log)
