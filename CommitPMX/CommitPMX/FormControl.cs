@@ -92,38 +92,6 @@ namespace CommitPMX
                 correspondingButton.Checked = true;
         }
 
-        private async Task InvokeAsyncWithExportException(Task task, string exDesc)
-        {
-            (string Value, bool HasValue) exception = (null, false);
-            try
-            {
-                await task;
-            }
-            catch (Exception ex)
-            {
-                exception.Value = $"========================================{Environment.NewLine}" +
-                                  $"{DateTime.Now:G}{Environment.NewLine}" +
-                                  $"{ex.GetType()}{Environment.NewLine}" +
-                                  $"{exDesc}{Environment.NewLine}" +
-                                  $"{ex.Message}{Environment.NewLine}" +
-                                  $"{ex.StackTrace}{Environment.NewLine}";
-                exception.HasValue = true;
-                MessageBox.Show($"アーカイブへの追加に失敗しました。{Environment.NewLine}{ex.Message}", "コミットの失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            try
-            {
-                if (exception.HasValue)
-                {
-                    File.AppendAllText(Path.Combine(LogArchive.CommitDirectory, "Exceptions.log"), exception.Value);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"例外履歴の書込に失敗しました。{Environment.NewLine}{ex.Message}", "例外履歴書込の失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
         private void FormControl_Load(object sender, EventArgs e)
         {
             SyncFormatSelection();
@@ -164,8 +132,10 @@ namespace CommitPMX
             );
 
             var commitTask = Task.Run(commit.Invoke);
-            string exDesc = $"'{commit.Log.SavedPath}'に'{commit.Log.Filename}'を追加するときに例外が発生しました。";
-            await InvokeAsyncWithExportException(commitTask, exDesc);
+            await commitTask.InvokeAsyncWithExportException(
+                LogArchive.CommitDirectory,
+                $"'{commit.Log.SavedPath}'に'{commit.Log.Filename}'を追加するときに例外が発生しました。"
+            );
 
             textBoxMessage.Clear();
             SetControlesEnable(true, sender as Button);
@@ -203,7 +173,10 @@ namespace CommitPMX
                 else
                     MessageBox.Show($"アーカイブファイルが見つかりませんでした。{Environment.NewLine}期待されたパス:{LogArchive.ArchivePath}");
             });
-            await InvokeAsyncWithExportException(recompTask, $"'{LogArchive.ArchivePath}'を再圧縮するときに例外が発生しました。");
+            await recompTask.InvokeAsyncWithExportException(
+                LogArchive.CommitDirectory,
+                $"'{LogArchive.ArchivePath}'を再圧縮するときに例外が発生しました。"
+            );
 
             textBoxMessage.Text = msgTmp;
             SetControlesEnable(true, sender as Button);
