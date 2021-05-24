@@ -24,9 +24,6 @@ namespace CommitPMX
 
         private string ModelTmpFilename => Path.Combine(LogArchive.CommitDirectory, Log.Filename);
 
-        public static string BuildCommitDirectryPath(string modelPath) =>
-            Path.Combine(Path.GetDirectoryName(modelPath), $"CommitLog_{Path.GetFileNameWithoutExtension(modelPath)}");
-
         public Commit(IPXPmx model, IPEFormConnector connector, string message, ICompressor compressor, LogArchive logArchive)
         {
             Compressor = compressor;
