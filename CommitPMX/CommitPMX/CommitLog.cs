@@ -22,6 +22,9 @@ namespace CommitPMX
             SavedPath = savedPath;
         }
 
+        public string ToJson() => JsonConvert.SerializeObject(this, Formatting.None);
+        public static CommitLog FromJson(string json) => JsonConvert.DeserializeObject<CommitLog>(json);
+
         public static ArchiveFormat ConvertFormatEnum(OutArchiveFormat? szFormat)
         {
             if (!szFormat.HasValue)
