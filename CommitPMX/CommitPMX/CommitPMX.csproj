@@ -82,6 +82,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="TaskExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="FormControl.resx">
