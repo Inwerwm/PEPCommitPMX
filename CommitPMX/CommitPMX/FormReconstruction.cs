@@ -18,7 +18,6 @@ namespace CommitPMX
         LogArchive LogArchive { get; }
 
         CommitLog? SelectedCommitLog => dataGridViewCommits.RowCount > 0 ? (CommitLog)dataGridViewCommits.SelectedRows[0].DataBoundItem : (CommitLog?)null;
-        private string LogFilePath { get; set; }
 
         public FormReconstruction(IPERunArgs args, SevenZipCompressor compressor, LogArchive logArchive)
         {
@@ -27,9 +26,6 @@ namespace CommitPMX
             Args = args;
             Compressor = compressor;
             LogArchive = logArchive;
-
-            var commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
-            LogFilePath = Path.Combine(commitDir, Commit.LogFileName);
         }
 
         private void ToggleButtons(bool enable)
@@ -41,14 +37,14 @@ namespace CommitPMX
 
         private void FormReconstruction_Load(object sender, EventArgs e)
         {
-            if (!File.Exists(LogFilePath))
+            if (!File.Exists(LogArchive.LogFilePath))
             {
                 MessageBox.Show("履歴が見つかりませんでした。", "復元ファイルの選択", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
                 return;
             }
 
-            var logLines = File.ReadLines(LogFilePath);
+            var logLines = File.ReadLines(LogArchive.LogFilePath);
             dataGridViewCommits.DataSource = logLines.Select(JsonConvert.DeserializeObject<CommitLog>).Reverse().ToArray();
             dataGridViewCommits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
@@ -149,11 +145,11 @@ namespace CommitPMX
             if (removedLogs.Any())
             {
                 var logTexts = removedLogs.Select(log => JsonConvert.SerializeObject(log, Formatting.None)).Reverse();
-                File.WriteAllText(LogFilePath, logTexts.Aggregate((sum, elm) => sum + Environment.NewLine + elm) + Environment.NewLine);
+                File.WriteAllText(LogArchive.LogFilePath, logTexts.Aggregate((sum, elm) => sum + Environment.NewLine + elm) + Environment.NewLine);
             }
             else
             {
-                File.Delete(LogFilePath);
+                File.Delete(LogArchive.LogFilePath);
             }
         }
     }
