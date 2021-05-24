@@ -31,7 +31,7 @@ namespace CommitPMX
                                   $"{ex.Message}{Environment.NewLine}" +
                                   $"{ex.StackTrace}{Environment.NewLine}";
                 exception.HasValue = true;
-                MessageBox.Show($"アーカイブへの追加に失敗しました。{Environment.NewLine}{ex.Message}", "コミットの失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"{exDesc}{Environment.NewLine}{ex.Message}", "例外が発生しました。", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
