@@ -63,13 +63,15 @@ namespace CommitPMX
             return extractedPmx;
         }
 
-        private void buttonExtract_Click(object sender, EventArgs e)
+        private async void buttonExtract_Click(object sender, EventArgs e)
         {
             if (!SelectedCommitLog.HasValue)
                 return;
             var selectedLog = SelectedCommitLog.Value;
 
-            try
+            ToggleButtons(false);
+
+            var extract = Task.Run(() =>
             {
                 if (selectedLog.Format == CommitLog.ArchiveFormat.None)
                 {
@@ -79,38 +81,45 @@ namespace CommitPMX
                 {
                     ExtractPmx(in selectedLog);
                 }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            });
+            await extract.InvokeAsyncWithExportException(LogArchive.CommitDirectory, $"{selectedLog.Filename}の解凍に失敗しました。");
+
+            ToggleButtons(true);
             MessageBox.Show("解凍が完了しました。", "ファイルの解凍");
             Close();
         }
 
-        private void buttonOverwrite_Click(object sender, EventArgs e)
+        private async void buttonOverwrite_Click(object sender, EventArgs e)
         {
             if (!SelectedCommitLog.HasValue)
                 return;
             var selectedLog = SelectedCommitLog.Value;
 
-            var pmx = PEStaticBuilder.Pmx.Pmx();
+            ToggleButtons(false);
 
-            if (selectedLog.Format == CommitLog.ArchiveFormat.None)
+            var extract = Task.Run(() =>
             {
-                pmx.FromFile(Path.Combine(selectedLog.SavedPath, selectedLog.Filename));
-            }
-            else
-            {
-                using (var pmxStream = new MemoryStream())
+                var pmx = PEStaticBuilder.Pmx.Pmx();
+
+                if (selectedLog.Format == CommitLog.ArchiveFormat.None)
                 {
-                    SevenZipCompressor.Extract(selectedLog.Filename, selectedLog.SavedPath, pmxStream);
-                    pmxStream.Position = 0;
-                    pmx.FromStream(pmxStream);
+                    pmx.FromFile(Path.Combine(selectedLog.SavedPath, selectedLog.Filename));
                 }
-            }
+                else
+                {
+                    using (var pmxStream = new MemoryStream())
+                    {
+                        SevenZipCompressor.Extract(selectedLog.Filename, selectedLog.SavedPath, pmxStream);
+                        pmxStream.Position = 0;
+                        pmx.FromStream(pmxStream);
+                    }
+                }
 
-            Utility.Update(Args.Host.Connector, pmx);
+                Utility.Update(Args.Host.Connector, pmx);
+            });
+            await extract.InvokeAsyncWithExportException(LogArchive.CommitDirectory, $"{selectedLog.Filename}の解凍に失敗しました。");
+
+            ToggleButtons(true);
             Close();
         }
 
