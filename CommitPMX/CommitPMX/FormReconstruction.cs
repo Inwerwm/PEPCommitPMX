@@ -33,10 +33,14 @@ namespace CommitPMX
             var logs = LogArchive.CommitLogs;
 
             if (logs.Any())
+            {
                 dataGridViewCommits.DataSource = logs;
+            }
             else
+            {
                 MessageBox.Show("履歴が見つかりませんでした。", "復元ファイルの選択", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
+            }
         }
 
         private void ToggleButtons(bool enable)
