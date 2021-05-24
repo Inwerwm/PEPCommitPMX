@@ -34,7 +34,7 @@ namespace CommitPMX
 
             if (logs.Any())
             {
-                dataGridViewCommits.DataSource = logs;
+                dataGridViewCommits.DataSource = logs.Reverse().ToArray();
             }
             else
             {
