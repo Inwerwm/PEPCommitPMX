@@ -122,47 +122,45 @@ namespace CommitPMX
         private async void buttonCommit_Click(object sender, EventArgs e)
         {
             SetControlesEnable(false, sender as Button);
-            var commitTask = Task.Run(() =>
+            Commit commit = new Commit(
+                Args.Host.Connector.Pmx.GetCurrentState(),
+                Args.Host.Connector.Form,
+                textBoxMessage.Text,
+                Compressor,
+                LogArchive
+            );
+            var commitTask = Task.Run(commit.Invoke);
+            Func<string> exDescBuilder = () => $"'{commit.Log.SavedPath}'に'{commit.Log.Filename}'を追加するときに例外が発生しました。";
+
+            (string Value, bool HasValue) exception = (null, false);
+            try
             {
-                Commit commit = new Commit(
-                    Args.Host.Connector.Pmx.GetCurrentState(),
-                    Args.Host.Connector.Form,
-                    textBoxMessage.Text,
-                    Compressor,
-                    LogArchive
-                );
+                await commitTask;
+            }
+            catch (Exception ex)
+            {
+                exception.Value = $"========================================{Environment.NewLine}" +
+                                  $"{DateTime.Now:G}{Environment.NewLine}" +
+                                  $"{ex.GetType()}{Environment.NewLine}" +
+                                  $"{exDescBuilder()}{Environment.NewLine}" +
+                                  $"{ex.Message}{Environment.NewLine}" +
+                                  $"{ex.StackTrace}{Environment.NewLine}";
+                exception.HasValue = true;
+                MessageBox.Show($"アーカイブへの追加に失敗しました。{Environment.NewLine}{ex.Message}", "コミットの失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
-                (string Value, bool HasValue) exception = (null, false);
-                try
+            try
+            {
+                if (exception.HasValue)
                 {
-                    commit.Invoke();
+                    File.AppendAllText(Path.Combine(LogArchive.LogDirectory, "Exceptions.log"), exception.Value);
                 }
-                catch (Exception ex)
-                {
-                    exception.Value = $"========================================{Environment.NewLine}" +
-                                      $"{DateTime.Now:G}{Environment.NewLine}" +
-                                      $"{ex.GetType()}{Environment.NewLine}" +
-                                      $"'{commit.Log.SavedPath}'に'{commit.Log.Filename}'を追加するときに例外が発生しました。{Environment.NewLine}" +
-                                      $"{ex.Message}{Environment.NewLine}" +
-                                      $"{ex.StackTrace}{Environment.NewLine}";
-                    exception.HasValue = true;
-                    MessageBox.Show($"アーカイブへの追加に失敗しました。{Environment.NewLine}{ex.Message}", "コミットの失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"例外履歴の書込に失敗しました。{Environment.NewLine}{ex.Message}", "例外履歴書込の失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
-                try
-                {
-                    if (exception.HasValue)
-                    {
-                        File.AppendAllText(Path.Combine(LogArchive.LogDirectory, "Exceptions.log"), exception.Value);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"例外履歴の書込に失敗しました。{Environment.NewLine}{ex.Message}", "例外履歴書込の失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-
-            });
-            await commitTask;
             textBoxMessage.Clear();
             SetControlesEnable(true, sender as Button);
         }
