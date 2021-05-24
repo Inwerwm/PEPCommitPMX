@@ -16,7 +16,8 @@ namespace CommitPMX
 
         public string LogDirectory { get; }
         public string LogPath => Path.Combine(LogDirectory, LogFilename + LogFileExt);
-        public string ArchivePath => Path.Combine(LogDirectory, ArchiveFilename + ArchiveExt);
+        public string ArchivePathWitoutExt => Path.Combine(LogDirectory, ArchiveFilename);
+        public string ArchivePath => ArchivePathWitoutExt + ArchiveExt;
 
         public SevenZipCompressor Compressor { get; }
 
@@ -74,7 +75,7 @@ namespace CommitPMX
 
             try
             {
-                Compressor.AddFileToArchive(filePath, ArchivePath);
+                Compressor.AddFileToArchive(filePath, ArchivePathWitoutExt);
             }
             catch (Exception ex)
             {
