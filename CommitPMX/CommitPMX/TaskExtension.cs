@@ -12,6 +12,11 @@ namespace CommitPMX
     {
         public static async Task InvokeAsyncWithExportException(this Task task, string commitDirectory, string exDesc)
         {
+            await task.InvokeAsyncWithExportException(commitDirectory, exDesc, null);
+        }
+
+        public static async Task InvokeAsyncWithExportException(this Task task, string commitDirectory, string exDesc, Action finallyAction)
+        {
             (string Value, bool HasValue) exception = (null, false);
             try
             {
@@ -28,6 +33,10 @@ namespace CommitPMX
                 exception.HasValue = true;
                 MessageBox.Show($"アーカイブへの追加に失敗しました。{Environment.NewLine}{ex.Message}", "コミットの失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            finally
+            {
+                finallyAction?.Invoke();
+            }
 
             try
             {
@@ -41,6 +50,5 @@ namespace CommitPMX
                 MessageBox.Show($"例外履歴の書込に失敗しました。{Environment.NewLine}{ex.Message}", "例外履歴書込の失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
     }
 }
