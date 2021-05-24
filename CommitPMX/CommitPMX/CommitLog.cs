@@ -22,6 +22,16 @@ namespace CommitPMX
             SavedPath = savedPath;
         }
 
+        public CommitLog(DateTime date, string message, Func<DateTime, string, string> filenameFormatter, ArchiveFormat format, string savedPath)
+        {
+            Date = date;
+            Message = message;
+            Filename = filenameFormatter(date, message);
+            Format = format;
+            SavedPath = savedPath;
+        }
+
+
         public string ToJson() => JsonConvert.SerializeObject(this, Formatting.None);
         public static CommitLog FromJson(string json) => JsonConvert.DeserializeObject<CommitLog>(json);
 
