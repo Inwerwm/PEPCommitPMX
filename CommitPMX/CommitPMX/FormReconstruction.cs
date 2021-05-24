@@ -28,6 +28,17 @@ namespace CommitPMX
             LogArchive = logArchive;
         }
 
+        private void LoadLogs()
+        {
+            var logs = LogArchive.CommitLogs;
+
+            if (logs.Any())
+                dataGridViewCommits.DataSource = logs;
+            else
+                MessageBox.Show("履歴が見つかりませんでした。", "復元ファイルの選択", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Close();
+        }
+
         private void ToggleButtons(bool enable)
         {
             buttonExtract.Enabled = enable;
@@ -37,15 +48,7 @@ namespace CommitPMX
 
         private void FormReconstruction_Load(object sender, EventArgs e)
         {
-            if (!File.Exists(LogArchive.LogFilePath))
-            {
-                MessageBox.Show("履歴が見つかりませんでした。", "復元ファイルの選択", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Close();
-                return;
-            }
-
-            var logLines = File.ReadLines(LogArchive.LogFilePath);
-            dataGridViewCommits.DataSource = logLines.Select(JsonConvert.DeserializeObject<CommitLog>).Reverse().ToArray();
+            LoadLogs();
             dataGridViewCommits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
 
@@ -116,16 +119,10 @@ namespace CommitPMX
                 return;
 
             ToggleButtons(false);
+
             try
             {
-                await Task.Run(() =>
-                {
-                    if (selectedLog.Format == CommitLog.ArchiveFormat.None)
-                        File.Delete(Path.Combine(selectedLog.SavedPath, selectedLog.Filename));
-                    else
-                        Compressor.Remove(selectedLog.Filename, selectedLog.SavedPath);
-                });
-                RemoveLog(selectedLog);
+                await Task.Run(() => LogArchive.Remove(selectedLog));
             }
             catch (Exception ex)
             {
@@ -135,22 +132,8 @@ namespace CommitPMX
             {
                 ToggleButtons(true);
             }
-        }
 
-        private void RemoveLog(CommitLog targetLog)
-        {
-            var logs = dataGridViewCommits.DataSource as CommitLog[];
-            var removedLogs = logs.Where(log => !log.Equals(targetLog)).ToArray();
-            dataGridViewCommits.DataSource = removedLogs;
-            if (removedLogs.Any())
-            {
-                var logTexts = removedLogs.Select(log => JsonConvert.SerializeObject(log, Formatting.None)).Reverse();
-                File.WriteAllText(LogArchive.LogFilePath, logTexts.Aggregate((sum, elm) => sum + Environment.NewLine + elm) + Environment.NewLine);
-            }
-            else
-            {
-                File.Delete(LogArchive.LogFilePath);
-            }
+            LoadLogs();
         }
     }
 }
