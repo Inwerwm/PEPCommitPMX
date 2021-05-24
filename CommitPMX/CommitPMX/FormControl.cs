@@ -115,7 +115,7 @@ namespace CommitPMX
             {
                 if (exception.HasValue)
                 {
-                    File.AppendAllText(Path.Combine(LogArchive.LogDirectory, "Exceptions.log"), exception.Value);
+                    File.AppendAllText(Path.Combine(LogArchive.CommitDirectory, "Exceptions.log"), exception.Value);
                 }
             }
             catch (Exception ex)

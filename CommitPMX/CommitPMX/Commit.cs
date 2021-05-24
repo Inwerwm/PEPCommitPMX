@@ -22,7 +22,7 @@ namespace CommitPMX
 
         private IPEFormConnector Connector { get; set; }
 
-        private string ModelTmpFilename => Path.Combine(LogArchive.LogDirectory, Log.Filename);
+        private string ModelTmpFilename => Path.Combine(LogArchive.CommitDirectory, Log.Filename);
 
         public static string BuildCommitDirectryPath(string modelPath) =>
             Path.Combine(Path.GetDirectoryName(modelPath), $"CommitLog_{Path.GetFileNameWithoutExtension(modelPath)}");

@@ -8,15 +8,15 @@ namespace CommitPMX
 {
     class LogArchive
     {
+        public string CommitDirectory { get; }
+        
         public string LogFilename => "CommitLog";
-        public string ArchiveFilename => "archive";
-
         public string LogFileExt => ".txt";
-        public string ArchiveExt => Compressor.ExtString;
+        public string LogFilePath => Path.Combine(CommitDirectory, LogFilename + LogFileExt);
 
-        public string LogDirectory { get; }
-        public string LogPath => Path.Combine(LogDirectory, LogFilename + LogFileExt);
-        public string ArchivePathWitoutExt => Path.Combine(LogDirectory, ArchiveFilename);
+        public string ArchiveFilename => "archive";
+        public string ArchiveExt => Compressor.ExtString;
+        public string ArchivePathWitoutExt => Path.Combine(CommitDirectory, ArchiveFilename);
         public string ArchivePath => ArchivePathWitoutExt + ArchiveExt;
 
         public SevenZipCompressor Compressor { get; }
@@ -25,8 +25,8 @@ namespace CommitPMX
         {
             get
             {
-                return File.Exists(LogPath) ?
-                       File.ReadLines(LogPath).Select(global::CommitPMX.CommitLog.FromJson) :
+                return File.Exists(LogFilePath) ?
+                       File.ReadLines(LogFilePath).Select(global::CommitPMX.CommitLog.FromJson) :
                        new List<CommitLog>();
             }
             set
@@ -34,15 +34,15 @@ namespace CommitPMX
                 if (value.Any())
                 {
                     File.WriteAllText(
-                        LogPath,
+                        LogFilePath,
                         value.Select(log => log.ToJson())
                             .Aggregate((sum, elm) => sum + Environment.NewLine + elm)
                         + Environment.NewLine
                     );
                 }
-                else if (File.Exists(LogPath))
+                else if (File.Exists(LogFilePath))
                 {
-                    File.Delete(LogPath);
+                    File.Delete(LogFilePath);
                 }
             }
         }
@@ -55,13 +55,13 @@ namespace CommitPMX
 
         public LogArchive(string modelPath, SevenZipCompressor compressor)
         {
-            LogDirectory = BuildCommitDirectryPath(modelPath);
+            CommitDirectory = BuildCommitDirectryPath(modelPath);
             Compressor = compressor;
         }
 
         private void AppendToJsonLog(CommitLog log)
         {
-            File.AppendAllText(LogPath, log.ToJson() + Environment.NewLine);
+            File.AppendAllText(LogFilePath, log.ToJson() + Environment.NewLine);
         }
 
         private void RemoveFromJsonLog(CommitLog log)
@@ -87,7 +87,7 @@ namespace CommitPMX
                 try
                 {
                     // ファイルのアーカイブへの追加に失敗したら無圧縮で保存
-                    var noCompArchivePath = Path.Combine(LogDirectory, ArchiveFilename);
+                    var noCompArchivePath = Path.Combine(CommitDirectory, ArchiveFilename);
                     Directory.CreateDirectory(noCompArchivePath);
                     File.Copy(filePath, Path.Combine(noCompArchivePath, Path.GetFileName(filePath)));
                 }
@@ -123,7 +123,7 @@ namespace CommitPMX
             }
             catch (Exception e)
             {
-                log = new CommitLog(commitLog.Date, commitLog.Message, commitLog.Filename, CommitLog.ArchiveFormat.None, Path.Combine(LogDirectory, ArchiveFilename));
+                log = new CommitLog(commitLog.Date, commitLog.Message, commitLog.Filename, CommitLog.ArchiveFormat.None, Path.Combine(CommitDirectory, ArchiveFilename));
 
                 ex = e;
             }
