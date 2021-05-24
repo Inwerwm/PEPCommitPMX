@@ -29,6 +29,9 @@ namespace CommitPMX
 
         public Commit(IPXPmx model, IPEFormConnector connector, string message, ICompressor compressor, LogArchive logArchive)
         {
+            Compressor = compressor;
+            LogArchive = logArchive;
+
             Connector = connector;
             Model = model;
 
@@ -40,11 +43,6 @@ namespace CommitPMX
                 CommitLog.ConvertFormatEnum(Compressor.ArchiveFormat),
                 LogArchive.ArchivePath
             );
-
-            Compressor = compressor;
-            LogArchive = logArchive;
-
-            var modelPath = model.FilePath;
         }
 
         public void Invoke()
