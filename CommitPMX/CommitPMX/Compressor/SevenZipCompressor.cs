@@ -127,14 +127,16 @@ namespace CommitPMX
                 compressor.Progressing += new EventHandler<DetailedProgressEventArgs>((sender, e) => detailedProgressHandler(sender, e, "圧縮中"));
                 compressor.CompressionMode = CompressionMode.Create;
                 compressor.CompressDirectory(extractDir, archivePathWithExt);
-
-                otherProgressHandler("一時フォルダを削除しています。");
-                Directory.Delete(extractDir, true);
             }
             catch (Exception)
             {
                 otherProgressHandler?.Invoke("例外が発生しました。");
                 throw;
+            }
+            finally
+            {
+                otherProgressHandler("一時フォルダを削除しています。");
+                Directory.Delete(extractDir, true);
             }
         }
 
