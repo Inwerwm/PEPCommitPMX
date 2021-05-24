@@ -1,9 +1,7 @@
-﻿using Newtonsoft.Json;
-using PEPExtensions;
+﻿using PEPExtensions;
 using PEPlugin;
 using PEPlugin.Pmx;
 using System;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -71,18 +69,21 @@ namespace CommitPMX
                 return;
             var selectedLog = SelectedCommitLog.Value;
 
-            if (selectedLog.Format == CommitLog.ArchiveFormat.None)
-                return;
-
             try
             {
-                ExtractPmx(in selectedLog);
+                if (selectedLog.Format == CommitLog.ArchiveFormat.None)
+                {
+                    File.Copy(Path.Combine(selectedLog.SavedPath, selectedLog.Filename), Path.Combine(LogArchive.CommitDirectory, selectedLog.Filename));
+                }
+                else
+                {
+                    ExtractPmx(in selectedLog);
+                }
             }
             catch (Exception)
             {
                 throw;
             }
-
             MessageBox.Show("解凍が完了しました。", "ファイルの解凍");
             Close();
         }
@@ -95,7 +96,11 @@ namespace CommitPMX
 
             var pmx = PEStaticBuilder.Pmx.Pmx();
 
-            if (selectedLog.Format != CommitLog.ArchiveFormat.None)
+            if (selectedLog.Format == CommitLog.ArchiveFormat.None)
+            {
+                pmx.FromFile(Path.Combine(selectedLog.SavedPath, selectedLog.Filename));
+            }
+            else
             {
                 using (var pmxStream = new MemoryStream())
                 {
@@ -103,10 +108,6 @@ namespace CommitPMX
                     pmxStream.Position = 0;
                     pmx.FromStream(pmxStream);
                 }
-            }
-            else
-            {
-                pmx.FromFile(Path.Combine(selectedLog.SavedPath, selectedLog.Filename));
             }
 
             Utility.Update(Args.Host.Connector, pmx);
