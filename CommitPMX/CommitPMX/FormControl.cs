@@ -14,6 +14,8 @@ namespace CommitPMX
         IPERunArgs Args { get; }
 
         SevenZipCompressor Compressor { get; set; }
+        LogArchive LogArchive { get; set; }
+
         SevenZip.OutArchiveFormat ArchiveFormat
         {
             get => Properties.Settings.Default.ArchiveFormat;
@@ -57,6 +59,7 @@ namespace CommitPMX
         internal void Reload()
         {
             Compressor = new SevenZipCompressor(Path.Combine(Path.GetDirectoryName(Args.ModulePath), "7z.cdll"), ArchiveFormat);
+            LogArchive = new LogArchive(Args.Host.Connector.Pmx.CurrentPath, Compressor);
         }
 
         private void SyncFormatSelection()
@@ -120,7 +123,7 @@ namespace CommitPMX
         {
             SetControlesEnable(false, sender as Button);
             var commitTask = Task.Run(() =>
-                new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxMessage.Text, Compressor).Invoke()
+                new Commit(Args.Host.Connector.Pmx.GetCurrentState(), Args.Host.Connector.Form, textBoxMessage.Text, Compressor, LogArchive).Invoke()
             );
             await commitTask;
             textBoxMessage.Clear();
@@ -240,7 +243,7 @@ namespace CommitPMX
 
         private void buttonReconstruction_Click(object sender, EventArgs e)
         {
-            var recForm = new FormReconstruction(Args, Compressor);
+            var recForm = new FormReconstruction(Args, Compressor, LogArchive);
             recForm.ShowDialog(this);
         }
     }

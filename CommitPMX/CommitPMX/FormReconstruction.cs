@@ -15,15 +15,18 @@ namespace CommitPMX
     {
         IPERunArgs Args { get; }
         SevenZipCompressor Compressor { get; }
+        LogArchive LogArchive { get; }
+
         CommitLog? SelectedCommitLog => dataGridViewCommits.RowCount > 0 ? (CommitLog)dataGridViewCommits.SelectedRows[0].DataBoundItem : (CommitLog?)null;
         private string LogFilePath { get; set; }
 
-        public FormReconstruction(IPERunArgs args, SevenZipCompressor compressor)
+        public FormReconstruction(IPERunArgs args, SevenZipCompressor compressor, LogArchive logArchive)
         {
             InitializeComponent();
 
             Args = args;
             Compressor = compressor;
+            LogArchive = logArchive;
 
             var commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
             LogFilePath = Path.Combine(commitDir, Commit.LogFileName);

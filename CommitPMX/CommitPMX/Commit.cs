@@ -19,6 +19,7 @@ namespace CommitPMX
         public DateTime CommitTime { get; }
         public string Message { get; }
         private ICompressor Compressor { get; }
+        LogArchive LogArchive { get; }
 
         private IPEFormConnector Connector { get; set; }
         private string DirectoryToCommit { get; set; }
@@ -28,12 +29,13 @@ namespace CommitPMX
         public static string BuildCommitDirectryPath(string modelPath) =>
             Path.Combine(Path.GetDirectoryName(modelPath), $"CommitLog_{Path.GetFileNameWithoutExtension(modelPath)}");
 
-        public Commit(IPXPmx model, IPEFormConnector connector, string message, ICompressor compressor)
+        public Commit(IPXPmx model, IPEFormConnector connector, string message, ICompressor compressor, LogArchive logArchive)
         {
             Connector = connector;
             Model = model;
             CommitTime = DateTime.Now;
             Compressor = compressor;
+            LogArchive = logArchive;
 
             var modelPath = model.FilePath;
             DirectoryToCommit = BuildCommitDirectryPath(modelPath);
