@@ -1,4 +1,5 @@
 ﻿using PEPlugin;
+using SevenZip.EventArguments;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -168,69 +169,15 @@ namespace CommitPMX
                     return;
                 }
 
-                var unCompLogs = LogArchive.CommitLogs.Where(log => log.Format == CommitLog.ArchiveFormat.None);
-
-                var doesAddUnCompLogsToArchive = false;
-                if (unCompLogs.Any())
-                {
-                    doesAddUnCompLogsToArchive = MessageBox.Show(
-                        $"未圧縮履歴が存在しました。{Environment.NewLine}圧縮アーカイブに追加しますか？",
-                        "未圧縮履歴の再圧縮",
-                        MessageBoxButtons.YesNo) == DialogResult.Yes;
-                }
-
-                // 展開フォルダへの追加に失敗したログと例外を保存するリスト
-                var failedCopyLogs = new List<(CommitLog Log, Exception Ex)>();
-
-                Compressor.ReCompress(
-                    LogArchive.ArchivePathWitoutExt,
+                LogArchive.ReCompress(
                     (_, dpe, state) =>
                     {
                         var completedRatio = (float)dpe.AmountCompleted / dpe.TotalAmount;
                         textBoxMessage.Text = $"{state}: {completedRatio * 100: #.#}%";
                     },
                     (state) => textBoxMessage.Text = state,
-                    doesAddUnCompLogsToArchive ? (extractPath) =>
-                    {
-                        textBoxMessage.Text = $"未圧縮履歴が存在しました。{Environment.NewLine}アーカイブに追加します。";
-
-                        foreach (var log in unCompLogs)
-                        {
-                            try
-                            {
-                                File.Copy(Path.Combine(log.SavedPath, log.Filename), Path.Combine(extractPath, log.Filename));
-                            }
-                            catch (Exception ex)
-                            {
-                                failedCopyLogs.Add((log, ex));
-                            }
-                        }
-
-                        if (failedCopyLogs.Any())
-                        {
-                            MessageBox.Show($"以下の未圧縮履歴の圧縮アーカイブへの追加に失敗しました。{Environment.NewLine}" +
-                                            failedCopyLogs.Select(failed => failed.Log.Filename + " : " + failed.Ex.Message),
-                                            "未圧縮履歴の再圧縮", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        }
-
-                    } : (Action<string>)null
+                    () => textBoxMessage.Text = $"未圧縮履歴が存在しました。{Environment.NewLine}アーカイブに追加します。"
                 );
-
-                if (doesAddUnCompLogsToArchive)
-                {
-                    foreach (var log in unCompLogs.Where(log => !failedCopyLogs.Select(pair => pair.Log).Contains(log)))
-                    {
-                        // 追加に成功した未圧縮ログの削除
-                        // 未圧縮状態でのログはここで削除しないと
-                        // 再圧縮に失敗した場合一時フォルダもろとも消去される
-                        LogArchive.Remove(log);
-                        // ここで追加しないと再圧縮失敗時に不正なログが追加されてしまう
-                        LogArchive.AppendToJsonLog(new CommitLog(log.Date, log.Message, log.Filename,
-                                                                 CommitLog.ConvertFormatEnum(Compressor.ArchiveFormat),
-                                                                 LogArchive.ArchivePath));
-                    }
-                    LogArchive.OrderLog();
-                }
             });
             await recompTask.InvokeAsyncWithExportException(
                 LogArchive.CommitDirectory,
@@ -240,7 +187,6 @@ namespace CommitPMX
             textBoxMessage.Text = msgTmp;
             SetControlesEnable(true, sender as Button);
         }
-
         private void radioButton7z_CheckedChanged(object sender, EventArgs e)
         {
             if ((sender as RadioButton).Checked)
