@@ -51,7 +51,7 @@ namespace CommitPMX
             this.textBoxMessage.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBoxMessage.Multiline = true;
             this.textBoxMessage.Name = "textBoxMessage";
-            this.textBoxMessage.Size = new System.Drawing.Size(396, 97);
+            this.textBoxMessage.Size = new System.Drawing.Size(406, 97);
             this.textBoxMessage.TabIndex = 0;
             this.textBoxMessage.TextChanged += new System.EventHandler(this.textBoxMessage_TextChanged);
             this.textBoxMessage.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxMessage_KeyPress);
@@ -64,7 +64,7 @@ namespace CommitPMX
             this.labelMessage.Location = new System.Drawing.Point(4, 0);
             this.labelMessage.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelMessage.Name = "labelMessage";
-            this.labelMessage.Size = new System.Drawing.Size(396, 29);
+            this.labelMessage.Size = new System.Drawing.Size(406, 29);
             this.labelMessage.TabIndex = 1;
             this.labelMessage.Text = "メッセージ(文字以内)  Ctrl+Enterでコミット";
             this.labelMessage.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -102,7 +102,7 @@ namespace CommitPMX
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 74F));
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 74F));
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 37F));
-            this.tableLayoutPanelMain.Size = new System.Drawing.Size(404, 321);
+            this.tableLayoutPanelMain.Size = new System.Drawing.Size(414, 321);
             this.tableLayoutPanelMain.TabIndex = 3;
             // 
             // buttonReCompress
@@ -123,7 +123,7 @@ namespace CommitPMX
             this.textBoxDescription.Multiline = true;
             this.textBoxDescription.Name = "textBoxDescription";
             this.textBoxDescription.ReadOnly = true;
-            this.textBoxDescription.Size = new System.Drawing.Size(260, 68);
+            this.textBoxDescription.Size = new System.Drawing.Size(270, 68);
             this.textBoxDescription.TabIndex = 5;
             this.textBoxDescription.Text = "アーカイブを再圧縮することで、\r\nアーカイブの容量を減らすことが\r\n期待できます。\r\n";
             // 
@@ -134,7 +134,7 @@ namespace CommitPMX
             this.groupBoxArchiveFormat.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBoxArchiveFormat.Location = new System.Drawing.Point(141, 139);
             this.groupBoxArchiveFormat.Name = "groupBoxArchiveFormat";
-            this.groupBoxArchiveFormat.Size = new System.Drawing.Size(260, 68);
+            this.groupBoxArchiveFormat.Size = new System.Drawing.Size(270, 68);
             this.groupBoxArchiveFormat.TabIndex = 6;
             this.groupBoxArchiveFormat.TabStop = false;
             this.groupBoxArchiveFormat.Text = "圧縮方式";
@@ -173,7 +173,7 @@ namespace CommitPMX
             this.buttonReconstruction.Dock = System.Windows.Forms.DockStyle.Fill;
             this.buttonReconstruction.Location = new System.Drawing.Point(3, 287);
             this.buttonReconstruction.Name = "buttonReconstruction";
-            this.buttonReconstruction.Size = new System.Drawing.Size(398, 31);
+            this.buttonReconstruction.Size = new System.Drawing.Size(408, 31);
             this.buttonReconstruction.TabIndex = 7;
             this.buttonReconstruction.Text = "復元ファイルの選択";
             this.buttonReconstruction.UseVisualStyleBackColor = true;
@@ -183,7 +183,7 @@ namespace CommitPMX
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 21F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(404, 321);
+            this.ClientSize = new System.Drawing.Size(414, 321);
             this.Controls.Add(this.tableLayoutPanelMain);
             this.Font = new System.Drawing.Font("游ゴシック", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;

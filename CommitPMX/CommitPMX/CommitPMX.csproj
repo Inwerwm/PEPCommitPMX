@@ -68,6 +68,7 @@
     <Compile Include="FormReconstruction.Designer.cs">
       <DependentUpon>FormReconstruction.cs</DependentUpon>
     </Compile>
+    <Compile Include="LogArchive.cs" />
     <Compile Include="PluginMain.cs" />
     <Compile Include="FormControl.cs">
       <SubType>Form</SubType>
@@ -81,6 +82,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="TaskExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="FormControl.resx">

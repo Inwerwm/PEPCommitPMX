@@ -1,9 +1,7 @@
-﻿using Newtonsoft.Json;
-using PEPExtensions;
+﻿using PEPExtensions;
 using PEPlugin;
 using PEPlugin.Pmx;
 using System;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,18 +13,32 @@ namespace CommitPMX
     {
         IPERunArgs Args { get; }
         SevenZipCompressor Compressor { get; }
-        CommitLog? SelectedCommitLog => dataGridViewCommits.RowCount > 0 ? (CommitLog)dataGridViewCommits.SelectedRows[0].DataBoundItem : (CommitLog?)null;
-        private string LogFilePath { get; set; }
+        LogArchive LogArchive { get; }
 
-        public FormReconstruction(IPERunArgs args, SevenZipCompressor compressor)
+        CommitLog? SelectedCommitLog => dataGridViewCommits.RowCount > 0 ? (CommitLog)dataGridViewCommits.SelectedRows[0].DataBoundItem : (CommitLog?)null;
+
+        public FormReconstruction(IPERunArgs args, SevenZipCompressor compressor, LogArchive logArchive)
         {
             InitializeComponent();
 
             Args = args;
             Compressor = compressor;
+            LogArchive = logArchive;
+        }
 
-            var commitDir = Commit.BuildCommitDirectryPath(Args.Host.Connector.Pmx.CurrentPath);
-            LogFilePath = Path.Combine(commitDir, Commit.LogFileName);
+        private void LoadLogs()
+        {
+            var logs = LogArchive.CommitLogs;
+
+            if (logs.Any())
+            {
+                dataGridViewCommits.DataSource = logs.Reverse().ToArray();
+            }
+            else
+            {
+                MessageBox.Show("履歴が見つかりませんでした。", "復元ファイルの選択", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Close();
+            }
         }
 
         private void ToggleButtons(bool enable)
@@ -38,15 +50,7 @@ namespace CommitPMX
 
         private void FormReconstruction_Load(object sender, EventArgs e)
         {
-            if (!File.Exists(LogFilePath))
-            {
-                MessageBox.Show("履歴が見つかりませんでした。", "復元ファイルの選択", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Close();
-                return;
-            }
-
-            var logLines = File.ReadLines(LogFilePath);
-            dataGridViewCommits.DataSource = logLines.Select(JsonConvert.DeserializeObject<CommitLog>).Reverse().ToArray();
+            LoadLogs();
             dataGridViewCommits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
 
@@ -59,51 +63,63 @@ namespace CommitPMX
             return extractedPmx;
         }
 
-        private void buttonExtract_Click(object sender, EventArgs e)
+        private async void buttonExtract_Click(object sender, EventArgs e)
         {
             if (!SelectedCommitLog.HasValue)
                 return;
             var selectedLog = SelectedCommitLog.Value;
 
-            if (selectedLog.Format == CommitLog.ArchiveFormat.None)
-                return;
+            ToggleButtons(false);
 
-            try
+            var extract = Task.Run(() =>
             {
-                ExtractPmx(in selectedLog);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+                if (selectedLog.Format == CommitLog.ArchiveFormat.None)
+                {
+                    File.Copy(Path.Combine(selectedLog.SavedPath, selectedLog.Filename), Path.Combine(LogArchive.CommitDirectory, selectedLog.Filename));
+                }
+                else
+                {
+                    ExtractPmx(in selectedLog);
+                }
+            });
+            await extract.InvokeAsyncWithExportException(LogArchive.CommitDirectory, $"{selectedLog.Filename}の解凍に失敗しました。");
 
+            ToggleButtons(true);
             MessageBox.Show("解凍が完了しました。", "ファイルの解凍");
             Close();
         }
 
-        private void buttonOverwrite_Click(object sender, EventArgs e)
+        private async void buttonOverwrite_Click(object sender, EventArgs e)
         {
             if (!SelectedCommitLog.HasValue)
                 return;
             var selectedLog = SelectedCommitLog.Value;
 
-            var pmx = PEStaticBuilder.Pmx.Pmx();
+            ToggleButtons(false);
 
-            if (selectedLog.Format != CommitLog.ArchiveFormat.None)
+            var extract = Task.Run(() =>
             {
-                using (var pmxStream = new MemoryStream())
+                var pmx = PEStaticBuilder.Pmx.Pmx();
+
+                if (selectedLog.Format == CommitLog.ArchiveFormat.None)
                 {
-                    SevenZipCompressor.Extract(selectedLog.Filename, selectedLog.SavedPath, pmxStream);
-                    pmxStream.Position = 0;
-                    pmx.FromStream(pmxStream);
+                    pmx.FromFile(Path.Combine(selectedLog.SavedPath, selectedLog.Filename));
                 }
-            }
-            else
-            {
-                pmx.FromFile(Path.Combine(selectedLog.SavedPath, selectedLog.Filename));
-            }
+                else
+                {
+                    using (var pmxStream = new MemoryStream())
+                    {
+                        SevenZipCompressor.Extract(selectedLog.Filename, selectedLog.SavedPath, pmxStream);
+                        pmxStream.Position = 0;
+                        pmx.FromStream(pmxStream);
+                    }
+                }
 
-            Utility.Update(Args.Host.Connector, pmx);
+                Utility.Update(Args.Host.Connector, pmx);
+            });
+            await extract.InvokeAsyncWithExportException(LogArchive.CommitDirectory, $"{selectedLog.Filename}の解凍に失敗しました。");
+
+            ToggleButtons(true);
             Close();
         }
 
@@ -117,41 +133,15 @@ namespace CommitPMX
                 return;
 
             ToggleButtons(false);
-            try
-            {
-                await Task.Run(() =>
-                {
-                    if (selectedLog.Format == CommitLog.ArchiveFormat.None)
-                        File.Delete(Path.Combine(selectedLog.SavedPath, selectedLog.Filename));
-                    else
-                        Compressor.Remove(selectedLog.Filename, selectedLog.SavedPath);
-                });
-                RemoveLog(selectedLog);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"履歴の削除に失敗しました。{Environment.NewLine}{ex.Message}", "履歴の削除", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                ToggleButtons(true);
-            }
-        }
 
-        private void RemoveLog(CommitLog targetLog)
-        {
-            var logs = dataGridViewCommits.DataSource as CommitLog[];
-            var removedLogs = logs.Where(log => !log.Equals(targetLog)).ToArray();
-            dataGridViewCommits.DataSource = removedLogs;
-            if (removedLogs.Any())
-            {
-                var logTexts = removedLogs.Select(log => JsonConvert.SerializeObject(log, Formatting.None)).Reverse();
-                File.WriteAllText(LogFilePath, logTexts.Aggregate((sum, elm) => sum + Environment.NewLine + elm) + Environment.NewLine);
-            }
-            else
-            {
-                File.Delete(LogFilePath);
-            }
+            var remove = Task.Run(() => LogArchive.Remove(selectedLog));
+            await remove.InvokeAsyncWithExportException(
+                LogArchive.CommitDirectory,
+                "履歴の削除に失敗しました。",
+                () => ToggleButtons(true)
+            );
+
+            LoadLogs();
         }
     }
 }
