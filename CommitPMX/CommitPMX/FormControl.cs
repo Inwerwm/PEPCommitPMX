@@ -198,13 +198,7 @@ namespace CommitPMX
                         {
                             try
                             {
-                                var newLog = new CommitLog(log.Date, log.Message, log.Filename,
-                                                            CommitLog.ConvertFormatEnum(Compressor.ArchiveFormat),
-                                                            LogArchive.ArchivePath);
-
                                 File.Copy(Path.Combine(log.SavedPath, log.Filename), Path.Combine(extractPath, log.Filename));
-
-                                LogArchive.AppendToJsonLog(newLog);
                             }
                             catch (Exception ex)
                             {
@@ -219,19 +213,23 @@ namespace CommitPMX
                                             "未圧縮履歴の再圧縮", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }
 
-                        LogArchive.OrderLog();
                     } : (Action<string>)null
                 );
 
                 if (doesAddUnCompLogsToArchive)
                 {
-                    // 追加に成功した未圧縮ログの削除
-                    // 未圧縮状態でのログはここで削除しないと
-                    // 再圧縮に失敗した場合一時フォルダもろとも消去される
                     foreach (var log in unCompLogs.Where(log => !failedCopyLogs.Select(pair => pair.Log).Contains(log)))
                     {
+                        // 追加に成功した未圧縮ログの削除
+                        // 未圧縮状態でのログはここで削除しないと
+                        // 再圧縮に失敗した場合一時フォルダもろとも消去される
                         LogArchive.Remove(log);
+                        // ここで追加しないと再圧縮失敗時に不正なログが追加されてしまう
+                        LogArchive.AppendToJsonLog(new CommitLog(log.Date, log.Message, log.Filename,
+                                                                 CommitLog.ConvertFormatEnum(Compressor.ArchiveFormat),
+                                                                 LogArchive.ArchivePath));
                     }
+                    LogArchive.OrderLog();
                 }
             });
             await recompTask.InvokeAsyncWithExportException(
