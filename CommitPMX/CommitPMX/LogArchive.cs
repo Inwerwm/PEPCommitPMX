@@ -61,6 +61,11 @@ namespace CommitPMX
             Directory.CreateDirectory(CommitDirectory);
         }
 
+        public void OrderLog()
+        {
+            JsonLog = JsonLog.OrderBy(l => l.Date);
+        }
+
         public void AppendToJsonLog(CommitLog log)
         {
             File.AppendAllText(LogFilePath, log.ToJson() + Environment.NewLine);
