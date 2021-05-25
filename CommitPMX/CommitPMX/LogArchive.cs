@@ -68,17 +68,17 @@ namespace CommitPMX
             JsonLog = JsonLog.OrderBy(l => l.Date);
         }
 
-        public void AppendToJsonLog(CommitLog log)
+        private void AppendToJsonLog(CommitLog log)
         {
             File.AppendAllText(LogFilePath, log.ToJson() + Environment.NewLine);
         }
 
-        public void RemoveFromJsonLog(CommitLog log)
+        private void RemoveFromJsonLog(CommitLog log)
         {
             JsonLog = JsonLog.Where(l => !l.Equals(log));
         }
 
-        public void AppendToArchive(string filePath)
+        private void AppendToArchive(string filePath)
         {
             Exception occurredEx = null;
 
@@ -109,7 +109,7 @@ namespace CommitPMX
             }
         }
 
-        public void RemoveFromArchive(CommitLog log)
+        private void RemoveFromArchive(CommitLog log)
         {
             if (log.Format == CommitLog.ArchiveFormat.None)
                 File.Delete(Path.Combine(log.SavedPath, log.Filename));
