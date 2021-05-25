@@ -1,6 +1,8 @@
 ﻿using PEPlugin;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -160,18 +162,77 @@ namespace CommitPMX
 
             var recompTask = Task.Run(() =>
             {
-                if (File.Exists(LogArchive.ArchivePath))
-                    Compressor.ReCompress(
-                        LogArchive.ArchivePathWitoutExt,
-                        (_, dpe, state) =>
-                            {
-                                var completedRatio = (float)dpe.AmountCompleted / dpe.TotalAmount;
-                                textBoxMessage.Text = $"{state}: {completedRatio * 100: #.#}%";
-                            },
-                        (state) => textBoxMessage.Text = state
-                    );
-                else
+                if (!File.Exists(LogArchive.ArchivePath))
+                {
                     MessageBox.Show($"アーカイブファイルが見つかりませんでした。{Environment.NewLine}期待されたパス:{LogArchive.ArchivePath}");
+                    return;
+                }
+
+                var unCompLogs = LogArchive.CommitLogs.Where(log => log.Format == CommitLog.ArchiveFormat.None);
+
+                var doesAddUnCompLogsToArchive = false;
+                if (unCompLogs.Any())
+                {
+                    doesAddUnCompLogsToArchive = MessageBox.Show(
+                        $"未圧縮履歴が存在しました。{Environment.NewLine}圧縮アーカイブに追加しますか？",
+                        "未圧縮履歴の再圧縮",
+                        MessageBoxButtons.YesNo) == DialogResult.Yes;
+                }
+
+                // 展開フォルダへの追加に失敗したログと例外を保存するリスト
+                var failedCopyLogs = new List<(CommitLog Log, Exception Ex)>();
+
+                Compressor.ReCompress(
+                    LogArchive.ArchivePathWitoutExt,
+                    (_, dpe, state) =>
+                    {
+                        var completedRatio = (float)dpe.AmountCompleted / dpe.TotalAmount;
+                        textBoxMessage.Text = $"{state}: {completedRatio * 100: #.#}%";
+                    },
+                    (state) => textBoxMessage.Text = state,
+                    doesAddUnCompLogsToArchive ? (extractPath) =>
+                    {
+                        textBoxMessage.Text = $"未圧縮履歴が存在しました。{Environment.NewLine}アーカイブに追加します。";
+
+                        foreach (var log in unCompLogs)
+                        {
+                            try
+                            {
+                                var newLog = new CommitLog(log.Date, log.Message, log.Filename,
+                                                            CommitLog.ConvertFormatEnum(Compressor.ArchiveFormat),
+                                                            LogArchive.ArchivePath);
+
+                                File.Copy(Path.Combine(log.SavedPath, log.Filename), Path.Combine(extractPath, log.Filename));
+
+                                LogArchive.AppendToJsonLog(newLog);
+                            }
+                            catch (Exception ex)
+                            {
+                                failedCopyLogs.Add((log, ex));
+                            }
+                        }
+
+                        if (failedCopyLogs.Any())
+                        {
+                            MessageBox.Show($"以下の未圧縮履歴の圧縮アーカイブへの追加に失敗しました。{Environment.NewLine}" +
+                                            failedCopyLogs.Select(failed => failed.Log.Filename + " : " + failed.Ex.Message),
+                                            "未圧縮履歴の再圧縮", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
+
+                        LogArchive.OrderLog();
+                    } : (Action<string>)null
+                );
+
+                if (doesAddUnCompLogsToArchive)
+                {
+                    // 追加に成功した未圧縮ログの削除
+                    // 未圧縮状態でのログはここで削除しないと
+                    // 再圧縮に失敗した場合一時フォルダもろとも消去される
+                    foreach (var log in unCompLogs.Where(log => !failedCopyLogs.Select(pair => pair.Log).Contains(log)))
+                    {
+                        LogArchive.Remove(log);
+                    }
+                }
             });
             await recompTask.InvokeAsyncWithExportException(
                 LogArchive.CommitDirectory,
