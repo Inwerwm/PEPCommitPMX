@@ -98,10 +98,12 @@ namespace CommitPMX
         /// <param name="archivePath">対象アーカイブへのパス アーカイブ名に拡張子はいらない</param>
         /// <param name="detailedProgressHandler">展開・圧縮進捗イベントハンドラ</param>
         /// <param name="otherProgressHandler">その他進捗イベントハンドラ</param>
+        /// <param name="onExtractFinish">展開完了時に実行する関数</param>
         public void ReCompress(
             string archivePath,
             Action<object, DetailedProgressEventArgs, string> detailedProgressHandler,
-            Action<string> otherProgressHandler)
+            Action<string> otherProgressHandler,
+            Action onExtractFinish = null)
         {
             string archivePathWithExt = archivePath + ExtString;
             var archiveDir = Path.GetDirectoryName(archivePathWithExt);
@@ -122,6 +124,8 @@ namespace CommitPMX
 
                 var dirInfo = new DirectoryInfo(extractDir);
                 dirInfo.Attributes |= FileAttributes.Hidden;
+
+                onExtractFinish?.Invoke();
 
                 var compressor = CreateCompressor();
                 compressor.Progressing += new EventHandler<DetailedProgressEventArgs>((sender, e) => detailedProgressHandler(sender, e, "圧縮中"));
