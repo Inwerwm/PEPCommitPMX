@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>CommitPMX</title>
+        <style>
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        
+        
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="commitpmx">CommitPMX</h1>
+<p>PMX Editor用 バージョン管理プラグイン</p>
+<h2 id="機能">機能</h2>
+<h3 id="編集履歴を保存">編集履歴を保存</h3>
+<p>メッセージと保存日時の情報を持った編集履歴を保存する。<br>
+履歴モデルのファイル名は<code>yyyy-MM-dd-HH-mm-ss-ff_{Message}.pmx</code>。</p>
+<h3 id="編集履歴アーカイブの自動圧縮">編集履歴アーカイブの自動圧縮</h3>
+<p>履歴モデルは<code>archive.7z</code>に圧縮されて保存される。</p>
+<p>アーカイブの再圧縮による保存容量の削減ができる。</p>
+<h3 id="現在編集状態の復元">現在編集状態の復元</h3>
+<p>編集履歴を選択して、現在の編集状態に上書きすることで状態の復元を行う。</p>
+<h2 id="プラグイン構成">プラグイン構成</h2>
+<ul>
+<li><strong>CommitPMX.dll</strong><br>
+プラグイン本体</li>
+<li><strong>7z.cdll</strong><br>
+7-Zipライブラリ<br>
+<code>7z.dll</code>をリネームしたもの</li>
+<li><strong>SevenZipSharp.dll</strong><br>
+<a href="https://github.com/squid-box/SevenZipSharp">https://github.com/squid-box/SevenZipSharp</a><br>
+7-ZipライブラリのC#ラッパー</li>
+<li><strong>Newtonsoft.Json.dll</strong><br>
+Jsonシリアライズ/デシリアライズ ライブラリ</li>
+<li><strong>PEPExtensions.dll</strong><br>
+<a href="https://github.com/Inwerwm/PEPExtensions">https://github.com/Inwerwm/PEPExtensions</a><br>
+Pmx Editor プラグイン用ライブラリ</li>
+</ul>
+<h2 id="履歴フォルダ構成">履歴フォルダ構成</h2>
+<ul>
+<li><strong>archive.7z</strong><br>
+履歴モデルファイルの圧縮アーカイブ。<br>
+圧縮形式にzipを使用した場合、拡張子が<code>.zip</code>になる。</li>
+<li><strong>CommitLog.txt</strong><br>
+履歴データクラスのシリアライズされたJsonデータ。<br>
+行ごとにオブジェクトを表しているので、フォーマットされて改行が挟まってしまうと読み込めなくなる。</li>
+<li><strong>Exceptions.log</strong><br>
+発生した例外のログ。</li>
+<li><strong>archive</strong><br>
+圧縮アーカイブへのファイル追加に失敗した場合に履歴モデルファイルが保存されるフォルダ。</li>
+</ul>
+<h2 id="アーカイブ追加失敗時">アーカイブ追加失敗時</h2>
+<p><code>archive.7z</code>へのファイル追加に失敗した場合、CommitLogフォルダ内に<code>archive</code>フォルダが生成され、その中に無圧縮で履歴モデルファイルが保存される。<br>
+無圧縮履歴は再圧縮時に圧縮アーカイブに追加することができる。</p>
+
+    </body>
+    </html>

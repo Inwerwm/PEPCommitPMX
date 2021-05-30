@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Commit PMX &#x8AAC;&#x660E;&#x66F8;</title>
+        <style>
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        
+        
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="commit-pmx-説明書">Commit PMX 説明書</h1>
+<h2 id="導入">導入</h2>
+<p>PMXエディターでモデルを編集していると、時々編集状態を前に戻したくなったりしませんか？<br>
+でも手作業でモデルのバックアップを取るのはめんどくさい…<br>
+そんな悩みを解消するために、今回紹介する Commit PMX プラグインを作成しました！</p>
+<h2 id="概要">概要</h2>
+<p>Commit PMX プラグインは以下の機能を持ちます：</p>
+<ul>
+<li>日時・メッセージ付きで編集履歴アーカイブにモデルを保存</li>
+<li>編集履歴アーカイブの自動圧縮</li>
+<li>任意履歴の現在編集状態への上書き</li>
+</ul>
+<p>概要だけではよくわからないと思うので、実際の使い方も説明していきます。</p>
+<h2 id="使い方">使い方</h2>
+<p>プラグインを起動したとき、履歴データを保存するための<code>CommitLog_モデル名</code>フォルダがモデルと同じ階層に作成されます。</p>
+<p>まだこのモデルに編集履歴が存在しない場合、編集をする前に初期状態を履歴に追加しておきましょう。</p>
+<p>それでは、モデルに編集を加えていき、適宜メッセージつきで履歴に現在状態を保存していきます。<br>
+編集履歴はテキストボックスに編集内容の説明を書いた後、コミットボタンをクリックするか Ctrl + Enter キーを押すことで保存できます。<br>
+このとき、PMXエディター側では未保存状態扱いになっていますが、実際には元のモデルも上書き保存されている点に注意してください。</p>
+<p><code>復元ファイルを選択</code>ボタンをクリックすると、これまでの編集履歴を一覧表示させることができます。<br>
+履歴の一つを選択した状態で<code>ログフォルダに解凍</code>ボタンをクリックすると、<code>CommitLog_モデル名</code>フォルダに履歴モデルが解凍されます。<br>
+<code>現在状態に上書き</code>ボタンを押すと、現在のPMXエディタ内のモデルの状態をその履歴保存時点に戻すことができます。<br>
+<code>削除</code>ボタンを押すと履歴の削除が可能ですが、ここで削除された履歴モデルはゴミ箱に入らず完全に消去されてしまうので注意してください。</p>
+<p><code>アーカイブを再圧縮</code>ボタンを押すと、履歴モデルを保存している<code>archive.7z</code>ファイルを一度展開してからもう一度圧縮します。<br>
+再圧縮を行うことで、アーカイブファイルの容量を減らすことができます。<br>
+圧縮アルゴリズムの都合上、ファイルをひとつずつ圧縮して追加するよりも、複数のファイルを一気に圧縮したほうが圧縮率は良くなるためです。
+編集量にも影響を受けますが、多くの場合かなりの容量削減が期待できます。<br>
+もっとも、圧縮率高めの設定で再圧縮をするので、履歴の数とPCスペックにもよりますがそこそこ時間がかかります。<br>
+なので、編集を終えた後、エディタを閉じる前に実行することをおすすめします。</p>
+<h2 id="注意事項">注意事項</h2>
+<p><code>CommitLog_モデル名</code>フォルダの中身は、<code>ログファイルに解凍</code>ボタンを押してできたファイルを除き、基本的に触らないことを推奨します。<br>
+CommitLog.txtの中身の形式が崩れると編集履歴を読み込めなくなりますし、archiveファイルに他プロセスからアクセスされている場合、圧縮ファイルを追加できない事態が発生することがあります。</p>
+<p>圧縮方式として、7zとzipが選べますが、特段の理由がない限りより圧縮率の良い7zを使うことをおすすめします。<br>
+zip形式ならarchive.zipの中身をエクスプローラで見れるという利点がありますが、7zでも7-Zipをインストールしておけば、7-Zip File Manager を使って中身を見ることができます。</p>
+<h2 id="7-zipについて">7-Zipについて</h2>
+<p>このプラグインでは圧縮のために<a href="https://sevenzip.osdn.jp/">7-Zip</a>を使用しています。<br>
+プラグインに同梱されている<code>7z.cdll</code>が7-Zipのライブラリです。<br>
+プラグインで使用する7-Zipのバージョンを上げたい場合、そのバージョンの7-Zipをインストールし、インストールフォルダ内の<code>7z.dll</code>をプラグインと同じフォルダにコピー後、名前を<code>7z.cdll</code>に変更して上書きしてください。</p>
+<h2 id="おわりに">おわりに</h2>
+<p>こまめに履歴を残すことで、編集状態の巻き戻しのほか、行った編集の一覧表示としても活用することができます。<br>
+また、履歴はpmxのファイル名から生成したフォルダに保存されるので、モデルのファイル名を変更すれば編集状態の分岐も行うことができます。<br>
+バージョン管理を適切に行えば、不可逆な変更も怖くありません。<br>
+Commit PMX を使って、よいモデル編集ライフをおくろう！</p>
+
+    </body>
+    </html>
