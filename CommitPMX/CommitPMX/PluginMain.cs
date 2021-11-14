@@ -24,7 +24,6 @@ namespace CommitPMX
             {
                 form = form ?? new FormControl(args);
                 form.Show();
-                form.Reload();
             }
             catch (Exception ex)
             {

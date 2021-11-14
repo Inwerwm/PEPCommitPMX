@@ -16,8 +16,8 @@ namespace CommitPMX
 
         IPERunArgs Args { get; }
 
-        SevenZipCompressor Compressor { get; set; }
-        LogArchive LogArchive { get; set; }
+        SevenZipCompressor Compressor => new SevenZipCompressor(Path.Combine(Path.GetDirectoryName(Args.ModulePath), "7z.cdll"), ArchiveFormat);
+        LogArchive LogArchive => new LogArchive(Args.Host.Connector.Pmx.CurrentPath, Compressor);
 
         SevenZip.OutArchiveFormat ArchiveFormat
         {
@@ -26,7 +26,6 @@ namespace CommitPMX
             {
                 Properties.Settings.Default.ArchiveFormat = value;
                 Properties.Settings.Default.Save();
-                Reload();
                 SyncFormatSelection();
             }
         }
@@ -40,7 +39,6 @@ namespace CommitPMX
             InitializeComponent();
             labelMessage.Text = $"メッセージ({MESSAGE_LIMIT}文字以内)  Ctrl+Enterでコミット";
             DefaultDescription = textBoxDescription.Text;
-            Reload();
         }
 
         private void SetControlesEnable(bool enable, Button runningButton)
@@ -57,12 +55,6 @@ namespace CommitPMX
             runningButton.Text = enable ?
                                  runningButton.Text.Replace(progressText, "") :
                                  runningButton.Text + progressText;
-        }
-
-        internal void Reload()
-        {
-            Compressor = new SevenZipCompressor(Path.Combine(Path.GetDirectoryName(Args.ModulePath), "7z.cdll"), ArchiveFormat);
-            LogArchive = new LogArchive(Args.Host.Connector.Pmx.CurrentPath, Compressor);
         }
 
         private void SyncFormatSelection()
@@ -126,17 +118,18 @@ namespace CommitPMX
         {
             SetControlesEnable(false, sender as Button);
 
+            LogArchive logArchive = LogArchive;
             Commit commit = new Commit(
                 Args.Host.Connector.Pmx.GetCurrentState(),
                 Args.Host.Connector.Form,
                 textBoxMessage.Text,
                 Compressor,
-                LogArchive
+                logArchive
             );
 
             var commitTask = Task.Run(commit.Invoke);
             await commitTask.InvokeAsyncWithExportException(
-                LogArchive.CommitDirectory,
+                logArchive.CommitDirectory,
                 $"'{commit.Log.SavedPath}'に'{commit.Log.Filename}'を追加するときに例外が発生しました。"
             );
 
@@ -161,15 +154,16 @@ namespace CommitPMX
             var msgTmp = textBoxMessage.Text;
             SetControlesEnable(false, sender as Button);
 
+            LogArchive logArchive = LogArchive;
             var recompTask = Task.Run(() =>
             {
-                if (!File.Exists(LogArchive.ArchivePath))
+                if (!File.Exists(logArchive.ArchivePath))
                 {
-                    MessageBox.Show($"アーカイブファイルが見つかりませんでした。{Environment.NewLine}期待されたパス:{LogArchive.ArchivePath}");
+                    MessageBox.Show($"アーカイブファイルが見つかりませんでした。{Environment.NewLine}期待されたパス:{logArchive.ArchivePath}");
                     return;
                 }
 
-                LogArchive.ReCompress(
+                logArchive.ReCompress(
                     (_, dpe, state) =>
                     {
                         var completedRatio = (float)dpe.AmountCompleted / dpe.TotalAmount;
@@ -180,8 +174,8 @@ namespace CommitPMX
                 );
             });
             await recompTask.InvokeAsyncWithExportException(
-                LogArchive.CommitDirectory,
-                $"'{LogArchive.ArchivePath}'を再圧縮するときに例外が発生しました。"
+                logArchive.CommitDirectory,
+                $"'{logArchive.ArchivePath}'を再圧縮するときに例外が発生しました。"
             );
 
             textBoxMessage.Text = msgTmp;
