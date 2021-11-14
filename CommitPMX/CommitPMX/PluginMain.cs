@@ -14,7 +14,7 @@ namespace CommitPMX
 
         public string Description => "CommitPMX";
 
-        public IPEPluginOption Option => new PEPluginOption(false, true);
+        public IPEPluginOption Option => new PEPluginOption(true, true);
 
         private FormControl form;
 
