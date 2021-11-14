@@ -36,7 +36,7 @@ namespace CommitPMX
             Log = new CommitLog(
                 now,
                 message,
-                (date,msg) => $"{date:yyyy-MM-dd-HH-mm-ss-ff}_{Regex.Replace(msg, @"[<>:\/\\|? *""]", "")}.pmx",
+                (date,msg) => $"{Guid.NewGuid().ToString("n").ToUpperInvariant()}.pmx",
                 CommitLog.ConvertFormatEnum(Compressor.ArchiveFormat),
                 LogArchive.ArchivePath
             );
