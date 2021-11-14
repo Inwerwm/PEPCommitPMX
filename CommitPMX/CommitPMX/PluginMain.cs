@@ -22,17 +22,9 @@ namespace CommitPMX
         {
             try
             {
-                if (form == null)
-                {
-                    form = new FormControl(args);
-                    form.Visible = true;
-                }
-                else
-                {
-                    form.Visible = !form.Visible;
-                    if (form.Visible)
-                        form.Reload();
-                }
+                form = form ?? new FormControl(args);
+                form.Show();
+                form.Reload();
             }
             catch (Exception ex)
             {
