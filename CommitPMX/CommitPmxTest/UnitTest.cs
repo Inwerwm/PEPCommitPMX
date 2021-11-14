@@ -19,7 +19,5 @@ namespace CommitPmxTest
 
             Assert.AreEqual(log, dsLog, "シリアライズの復元に失敗しました。");
         }
-
-
     }
 }
