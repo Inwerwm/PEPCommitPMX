@@ -186,7 +186,6 @@ namespace CommitPMX
             this.ClientSize = new System.Drawing.Size(414, 321);
             this.Controls.Add(this.tableLayoutPanelMain);
             this.Font = new System.Drawing.Font("游ゴシック", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "FormControl";
             this.Text = "CommitPMX";
